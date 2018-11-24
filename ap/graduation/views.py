@@ -75,8 +75,8 @@ class OutlineView(CreateUpdateView):
   # instead of using a form invalid as a hack
   def form_invalid(self, form):
     obj = self.object
-    obj.speaking_section = form.cleaned_data['speaking_section']
-    obj.speaking = form.cleaned_data['speaking']
+    obj.speaking_section = form.cleaned_data.get('speaking_section')
+    obj.speaking = form.cleaned_data.get('speaking')
     obj.save()
     return redirect('graduation:outline-view')
 

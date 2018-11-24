@@ -213,7 +213,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
     ctx['leaveslips'] = slips
     ctx['selected_ta'] = ta
-    ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
+    ctx['status_list'] = LeaveSlip.LS_STATUS  # Removes Sister Approved Choice
     ctx['selected_status'] = status
     ctx['selected_trainee'] = tr
     ctx['trainee_list'] = Trainee.objects.all()

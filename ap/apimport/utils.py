@@ -657,7 +657,7 @@ def import_row(row):
     else:
       log.warning("Unable to set house [%s] for trainee: %s %s" % (row['residenceID'], row['stName'], row['lastName']))
 
-  user.self_attendance = user.current_term > 2
+  # user.self_attendance = user.current_term > 2
   user.save()
 
   # META

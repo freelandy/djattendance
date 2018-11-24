@@ -59,11 +59,6 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
       form_name = HCRA_FORM
       if form.is_valid():
         hcra = HCRecommendationAdmin.objects.get_or_create(term=Term.current_term())[0]
-        for house in House.objects.all():
-          hcr = HCRecommendation.objects.get_or_create(house=house, survey_admin=hcra)[0]
-          hcr.open_time = form.cleaned_data['open_time']
-          hcr.close_time = form.cleaned_data['close_time']
-          hcr.save()
         hcra.open_time = form.cleaned_data['open_time']
         hcra.close_time = form.cleaned_data['close_time']
         hcra.open_survey = form.cleaned_data['open_survey']
@@ -243,7 +238,7 @@ class HCRecommendationCreate(GroupRequiredMixin, TemplateView):
           else:
             form_data[name] = request.POST.get(name + "_" + str(i))
 
-      check_existing = HCRecommendation.objects.filter(recommended_hc=form_data["recommended_hc"])
+      check_existing = HCRecommendation.objects.filter(survey_admin=survey_admin, recommended_hc=form_data["recommended_hc"])
       if check_existing.count() != 0:
         # if existing then delete and make new ones, don't bother editing
         # not the safest thing in the world but this is a low risk module so yeah.
@@ -256,19 +251,6 @@ class HCRecommendationCreate(GroupRequiredMixin, TemplateView):
       hcr.save()
 
     return HttpResponseRedirect(reverse_lazy('hc:hc-recommendation'))
-
-
-class HCRecommendationUpdate(HCRecommendationCreate, UpdateView):
-  model = HCRecommendation
-  template_name = 'hc/hc_recommendation.html'
-  form_class = HCRecommendationForm
-  success_url = reverse_lazy('home')
-
-  def get_context_data(self, **kwargs):
-    ctx = super(HCRecommendationUpdate, self).get_context_data(**kwargs)
-    ctx['button_label'] = 'Update'
-    ctx['page_title'] = 'Update HC Recommendation'
-    return ctx
 
 
 class HCSurveyTAView(GroupRequiredMixin, TemplateView):
@@ -306,8 +288,7 @@ class HCRecommendationTAView(GroupRequiredMixin, TemplateView):
     hc_recommendations = []
     for h in houses:
       hcrs = HCRecommendation.objects.filter(survey_admin=hcra, house=h)
-      # hc_ids = [r.id for r in h.residents if r.has_group(['HC'])]
-      expected = h.residents.exclude(groups__name=['HC']).filter(current_term__in=[2, 3]).count()
+      expected = h.residents.exclude(groups__name='HC').filter(current_term__in=[2, 3]).count()
       hc_recommendations.append({
         'house': h,
         'hcrs': hcrs,
