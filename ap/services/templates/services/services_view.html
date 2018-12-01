@@ -139,8 +139,13 @@ Service Scheduling
           <a href="{% url 'services:services_generate_leaveslips' %}?week_schedule={{current_week}}" class="btn btn-primary" onclick="return confirm('Are you sure? This could overwrite existing leaveslips.')">Generate Leave Slips</a>
         </div>
         &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
         <div class="btn-group">
-          <a href="{% url 'services:services_assign_view' %}?week_schedule={{current_week}}" class="btn btn-success" onclick="return confirm('Are you sure? This will overwrite the current schedule.')">Make Schedule</a>
+          <a href="{% url 'services:services_assign_view' %}?week_schedule={{current_week}}" class="btn btn-success" style="color:red;" onclick="return confirm('Are you sure? This will overwrite the current schedule.')">Make Schedule</a>
         </div>
       </div>
       <div>
