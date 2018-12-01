@@ -19,7 +19,7 @@ class GospelPair(models.Model):
 # Gospel Statistics
 class GospelStat(models.Model):
   # Might want to change SET_NULL to CASCADE
-  gospelpair = models.ForeignKey(GospelPair, blank=True, null=True, on_delete=models.SET_NULL)
+  gospelpair = models.ForeignKey(GospelPair, blank=True, null=True, on_delete=models.CASCADE)
   week = models.PositiveSmallIntegerField(default=0)
   tracts_distributed = models.PositiveSmallIntegerField(default=0)
   bibles_distributed = models.PositiveSmallIntegerField(default=0)
