@@ -12,16 +12,10 @@
     {% for each in all_stat %}
     <tr>
       <th>
-      {% for every in each.gospel_pair.trainees.all %}
-        {{every}},
-      {% endfor %}
-        <div>
-          <a>
-            <button class="btn btn-primary" onclick="deletePair({{each.gospel_pair.id}});" title="Delete gospel pair">
-              <span class="glyphicon glyphicon-trash"></span>
-            </button>
-          </a>
-        </div>
+        <input style="display:none" name="pairs" value={{each.gospel_pair.id}}>
+        {% for every in each.gospel_pair.trainees.all %}
+          {{every}}, 
+        {% endfor %}
       </th>
       <td>
         {{each.tracts_distributed}}

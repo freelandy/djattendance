@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 from terms.models import Term
+from aputils.decorators import group_required
 
 from .models import GospelPair, GospelStat
 from teams.models import Team
@@ -173,6 +174,7 @@ def delete_pair(request):
 
 
 # In Progress (change to class)
+@group_required(['training_assistant'])
 def TAGospelStatisticsView(request):
   campus = Team.objects.filter(type='CAMPUS')
   campus_pairs = GospelPair.objects.filter(team__in=campus)
