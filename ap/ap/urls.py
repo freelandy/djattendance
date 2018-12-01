@@ -31,6 +31,7 @@ from web_access.forms import WebAccessRequestGuestCreateForm as form
 
 from .views import (custom404errorview, custom500errorview, custom502errorview,
                     custom503errorview, custom504errorview, home)
+from . import views
 
 admin.autodiscover()
 
@@ -87,6 +88,7 @@ urlpatterns = [
   url(r'^502/$', custom502errorview),  # for development
   url(r'^503/$', custom503errorview),  # for development
   url(r'^504/$', custom504errorview),  # for development
+  url(r'^printer/$', views.printerinstructions),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
