@@ -221,6 +221,7 @@
           <th>Period</th>
           <th>Reason</th>
           <th>Date</th>
+          <th>Date Submitted</th>
           <th>Description</th>
           <th>Private TA Comments</th>
           <th>Status</th>
@@ -246,6 +247,7 @@
             <td>{{leaveslip.period}}</td>
             <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
             <td class="slip-date">{{leaveslip.date|date:"N d"}}</td>
+            <td> {{leaveslip.submitted}}</td>
             <td>{{leaveslip.description|truncatechars:100}}</td>
             <td>{{leaveslip.private_TA_comments|truncatechars:100}}</td>
             <td>{{leaveslip.get_status_display}}</td>
