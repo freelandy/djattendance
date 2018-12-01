@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 
-from ap.forms import TraineeSelectForm
 from accounts.models import Trainee
+from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit_inline
 from attendance.models import Roll
@@ -24,8 +24,7 @@ from rest_framework.decorators import permission_classes
 from teams.models import Team
 from terms.models import Term
 
-from .forms import (EditSummaryForm, NewDisciplineForm,
-                    NewSummaryForm)
+from .forms import EditSummaryForm, NewDisciplineForm, NewSummaryForm
 from .models import Discipline, Summary
 from .permissions import IsOwner
 from .serializers import SummarySerializer
@@ -53,7 +52,7 @@ class DisciplineListView(ListView):
       for value in request.POST.getlist('selection'):
         discipline = Discipline.objects.get(pk=value)
         for num in range(discipline.quantity):
-          #Create dummy summaries to enable the discipline to be approved
+          # Create dummy summaries to enable the discipline to be approved
           gen = Book.objects.get(pk=4)
           summary = Summary(book=gen, chapter=1)
           summary.submitting_paper_copy = True
@@ -130,6 +129,7 @@ class DisciplineCreateView(SuccessMessageMixin, CreateView):
     context['trainee_select_form'] = TraineeSelectForm()
     return context
 
+
 def multipleDisciplineCreateView(request):
   data = request.body
   list_data = data.split('&')
@@ -185,10 +185,14 @@ class DisciplineDetailView(DetailView):
       if 'decrease_penalty' in request.POST:
         self.get_object().decrease_penalty(penalty_num)
         messages.success(request, "Decreased summary by x")
-
       if 'increase_penalty' in request.POST:
         self.get_object().increase_penalty(penalty_num)
         messages.success(request, "Increased Summary by x")
+    if 'offense_type' in request.POST:
+      d = self.get_object()
+      d.offense = request.POST['offense_type']
+      d.save()
+      messages.success(request, "Offense type changed")
 
     return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
