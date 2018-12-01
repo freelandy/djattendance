@@ -2,11 +2,15 @@ from itertools import chain
 
 from ap.base_datatable_view import BaseDatatableView  # , DataTableViewerMixin
 from aputils.trainee_utils import is_TA
+from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse_lazy
+
+from django.contrib import messages
+
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 from houses.models import Room
 from terms.models import Term
@@ -57,6 +61,21 @@ def NewRequestPage(request):
   return render(request, 'new_request_page.html')
 
 
+def modify_model_status_framing(model, url):
+  @group_required(['frames'], raise_exception=True)
+  def modify_status(request, status, id, message_func=None):
+    obj = get_object_or_404(model, pk=id)
+    obj.status = status
+    obj.save()
+    if message_func:
+      message = message_func(obj)
+    else:
+      message = "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_display())
+    messages.add_message(request, messages.SUCCESS, message)
+    return redirect(url)
+  return modify_status
+
+
 def MaintenanceReport(request):
   if request.POST:
     c = request.POST.get('command')
@@ -83,7 +102,7 @@ def MaintenanceReport(request):
 
 modify_maintenance_status = modify_model_status(MaintenanceRequest, reverse_lazy('house_requests:maintenance-list'))
 modify_linens_status = modify_model_status(LinensRequest, reverse_lazy('house_requests:linens-list'))
-modify_framing_status = modify_model_status(FramingRequest, reverse_lazy('house_requests:framing-list'))
+modify_framing_status = modify_model_status_framing(FramingRequest, reverse_lazy('house_requests:framing-list'))
 
 
 class MaintenanceRequestTAComment(generic.UpdateView):
