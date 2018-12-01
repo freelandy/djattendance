@@ -80,6 +80,7 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
       update['ta_sister_approved'] = True if request.POST.get('ta_sister_approved') == 'on' else False
     if request.POST.get('texted'):
       update['texted'] = True if request.POST.get('texted') == 'on' else False
+    update['does_not_count'] = True if request.POST.get('does_not_count') == 'on' else False
 
     IndividualSlipSerializer().update(self.get_object(), update)
     return HttpResponse('ok')
@@ -113,6 +114,7 @@ class GroupSlipUpdate(LeaveSlipUpdate):
       update['ta_sister_approved'] = True if request.POST.get('ta_sister_approved') == 'on' else False
     if request.POST.get('texted'):
       update['texted'] = True if request.POST.get('texted') == 'on' else False
+    update['does_not_count'] = True if request.POST.get('does_not_count') == 'on' else False
 
     GroupSlipSerializer().update(self.get_object(), update)
     return HttpResponse('ok')
