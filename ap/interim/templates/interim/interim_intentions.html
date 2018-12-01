@@ -163,6 +163,27 @@ $(document).ready(() => {
 <!-- /Error messaging -->
 {% endif %}
 
+{% for iform in itinerary_forms %}
+
+{% if iform.errors %}
+<!-- Error messaging -->
+  <div id="errors">
+    <div class="inner">
+      <p>There were some errors in the information you entered. Please correct the following:</p>
+      {{ iform.non_field_errors }}
+      <ul>
+        {% for field in iform %}
+          {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+<!-- /Error messaging -->
+{% endif %}
+
+
+{% endfor %}
+
 <form id="id_interim_intentions_form" method="post" action="">
   {% csrf_token %}
   <div class="panel">
