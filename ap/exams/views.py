@@ -228,7 +228,7 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
         pass
     else:
       exam = Exam.objects.get(pk=self.kwargs['pk'])
-      
+
       grades = P.getlist('new-grade')
       trainee_ids = P.getlist('trainee-id')
       # trainees = Trainee.objects.filter(id__in=trainee_ids)
