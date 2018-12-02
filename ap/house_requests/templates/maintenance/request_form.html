@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "requests/request_tabs.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
@@ -7,55 +7,46 @@
 {% block title %}{{ view.model|model_verbose_name|title }} Form{% endblock %}
 
 {% block references %}
+{{ block.super }}
 <style type="text/css">
-  .grid {
-    display: grid;
-    grid-template-columns: 270px 120px 525px;
-    grid-template-rows: 30px repeat(3, 35px 35px 20px);
-    grid-template-areas:
-      ". . ."
-      "question1 . ldescription"
-      "input1 . description"
-      ". . description"
-      "question2 . description"
-      "input2 . description"
-      ". . description"
-      "question3 . description"
-      "input3 . description"
-      ". . .";
-    align-items: end;
-  }
-
   label[for=id_house] {
-    grid-area: question1;
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
   }
 
   #id_house {
-    grid-area: input1;
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
   }
 
   label[for=id_description] {
-    grid-area: ldescription;
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
   }
 
   #id_description {
-    grid-area: description;
+    grid-column: 3 / 4;
+    grid-row: 3 / 10;
   }
 
   label[for=id_room] {
-    grid-area: question2;
+    grid-column: 1 / 2;
+    grid-row: 5 / 6;
   }
 
   #id_room {
-    grid-area: input2;
+    grid-column: 1 / 2;
+    grid-row: 6 / 7;
   }
 
   label[for=id_request_type] {
-    grid-area: question3;
+    grid-column: 1 / 2;
+    grid-row: 8 / 9;
   }
 
   #id_request_type {
-    grid-area: input3;
+    grid-column: 1 / 2;
+    grid-row: 9 / 10;
   }
 </style>
 {% endblock %}
@@ -82,67 +73,39 @@
           room_elem.attr("disabled", false);
         }
       });
+      $('#id_description').removeAttr("style");
     });
   </script>
 {% endblock %}
 
-{% block content %}
-  <h2>{{ view.model|model_verbose_name|title}} Form</h2>
+{% block request_form %}
+  <div class="grid">
+    {{ form.house.label_tag }}
+    {{ form.house }}
 
-  <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#maintenance-request" aria-controls="home" role="tab" data-toggle="tab">Request</a></li>
-    <li role="presentation"><a href="#maintenance-request-history" aria-controls="profile" role="tab" data-toggle="tab">History</a></li>
-  </ul>
+    {{ form.room.label_tag }}
+    {{ form.room }}
 
-  <div class="tab-content">
+    {{ form.request_type.label_tag }}
+    {{ form.request_type }}
 
-    <div id="maintenance-request" class="tab-pane active" role="tabpanel" >
-      <div class="request-form">
-        <form action="" method="post">
-          {% csrf_token %}
-
-          <div class="grid">
-            {{ form.house.label_tag }}
-            {{ form.house }}
-
-            {{ form.room.label_tag }}
-            {{ form.room }}
-
-            {{ form.request_type.label_tag }}
-            {{ form.request_type }}
-
-            {{ form.description.label_tag }}
-            {{ form.description }}
-          </div>
-
-          {{ form.urgent }} Urgent
-
-          {% buttons %}
-            {% if not read_only %}
-            <button type="submit" class="submit btn btn-primary">
-              Submit
-            </button>
-            {% endif%}
-          {% endbuttons %}
-        </form>
-      </div>
-
-      <div class="alert alert-warning">
-        <p>Please note that routine maintenance requests are usually serviced on Saturdays.</p>
-        <p>
-          For an emergency, please call:
-          <ul>
-            <li>John Blatz (714) 493-0037</li>
-            <li>Solomon Leung (714) 863-5082</li>
-            <li>Vu Tran (714) 270-3064</li>
-          </ul>
-        </p>
-      </div>
-    </div>
-
-    <div id="maintenance-request-history" class="tab-pane" role="tabpanel" >
-      Test
-    </div>
+    {{ form.description.label_tag }}
+    {{ form.description }}
   </div>
 
+  {{ form.urgent }} Urgent
+{% endblock %}
+
+{% block extra_form_elements %}
+  <div class="alert alert-warning">
+    <p>Please note that routine maintenance requests are usually serviced on Saturdays.</p>
+    <p>
+      For an emergency, please call:
+      <ul>
+        <li>John Blatz (714) 493-0037</li>
+        <li>Solomon Leung (714) 863-5082</li>
+        <li>Vu Tran (714) 270-3064</li>
+      </ul>
+    </p>
+  </div>
 {% endblock %}

@@ -17,7 +17,7 @@
 
   $( document ).ready(() => {
     {% if read_only %}
-    $('#id_grad_form *').attr("disabled", true);
+      $('#id_grad_form *').attr("disabled", true);
     {% endif %}
 
     $('.char_count').each(updateCountdown);

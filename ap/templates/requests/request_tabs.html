@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+{% bootstrap_messages %}
+
+{% block title %}{{ view.model|model_verbose_name|title }}{% endblock %}
+
+{% block scripts %}
+{{ form.media }}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $(".select-fk").select2({width: '100%'});
+  });
+</script>
+{% endblock %}
+
+{% block references %}
+<style type="text/css">
+  .grid {
+    display: grid;
+    grid-template-columns: 270px 120px 525px;
+    grid-template-rows: 30px repeat(3, 35px 35px 20px);
+    align-items: end;
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+	<h2>{{ view.model|model_verbose_name|title }}</h2>
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#maintenance-request" aria-controls="home" role="tab" data-toggle="tab">New Request</a></li>
+    <li role="presentation"><a href="#maintenance-request-history" aria-controls="profile" role="tab" data-toggle="tab">History</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <div id="maintenance-request" class="tab-pane active" role="tabpanel" >
+      <div class="request-form">
+        <form action="" method="post">
+	        {% csrf_token %}
+	        {% block request_form %}{% endblock %}
+
+          {% buttons %}
+            {% if not read_only %}
+            <button type="submit" class="submit btn btn-primary">
+              Submit
+            </button>
+            {% endif%}
+          {% endbuttons %}
+
+	      </form>
+      </div>
+    </div>
+
+    <div id="maintenance-request-history" class="tab-pane" role="tabpanel" >
+      Test
+    </div>
+
+
+  </div>
+
+  {% block extra_form_elements %}
+  {% endblock %}
+
+{% endblock %}
