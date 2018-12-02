@@ -63,8 +63,8 @@ def NewRequestPage(request):
 
 def modify_model_status_framing(model, url):
   @group_required(['frames'], raise_exception=True)
-  def modify_status_framing(request, status, id, message_func=None):
-    obj = get_object_or_404(model, pk=id)
+  def modify_status_framing(request, status, oid, message_func=None):
+    obj = get_object_or_404(model, pk=oid)
     obj.status = status
     obj.save()
     if message_func:
