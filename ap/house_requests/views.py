@@ -63,7 +63,7 @@ def NewRequestPage(request):
 
 def modify_model_status_framing(model, url):
   @group_required(['frames'], raise_exception=True)
-  def modify_status(request, status, id, message_func=None):
+  def modify_status_framing(request, status, id, message_func=None):
     obj = get_object_or_404(model, pk=id)
     obj.status = status
     obj.save()
@@ -73,7 +73,7 @@ def modify_model_status_framing(model, url):
       message = "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_display())
     messages.add_message(request, messages.SUCCESS, message)
     return redirect(url)
-  return modify_status
+  return modify_status_framing
 
 
 def MaintenanceReport(request):
