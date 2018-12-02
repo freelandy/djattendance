@@ -228,7 +228,7 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
         pass
     else:
       exam = Exam.objects.get(pk=self.kwargs['pk'])
-
+      
       grades = P.getlist('new-grade')
       trainee_ids = P.getlist('trainee-id')
       # trainees = Trainee.objects.filter(id__in=trainee_ids)
@@ -251,11 +251,12 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
         # Save grades for trainees who use paper submission
         session, created = Session.objects.update_or_create(
           exam=exam,
-          trainee=trainee,
-          is_submitted_online=False,
-          time_finalized=datetime.now(),
-          is_graded=True,
-          grade=float(grades[index]))
+          trainee=trainee)
+        session.is_submitted_online=False
+        session.time_finalized=datetime.now()
+        session.is_graded=True
+        session.grade=float(grades[index])
+        session.save()
 
       grades2 = P.getlist('session-id-grade')
       session_ids = P.getlist('session-id')
