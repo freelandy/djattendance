@@ -80,7 +80,10 @@
         <th>Preference 2</th>
         <th>Preference 3</th>
         <th>Select Destination</th>
-        <th>Team Contact</th>
+        <th>Trainee Contact</th>
+        <th>Finance Coordinator</th>
+        <th>Media Coordinator</th>
+        <th>Report/Stats Coordinator</th>
       </tr>
     </thead>
     <tbody>
@@ -99,7 +102,10 @@
             {% endfor %}
           </select>
           </td>
-          <td><input class="trainee-contact" type="checkbox" name="trainee_contact_selection" value="{{trainee.id}}" {% if trainee.trainee_contact %}checked="checked"{% endif %}></input></td>
+          <td><input class="trainee-contact" type="checkbox" value="{{trainee.id}}" {% if trainee.trainee_contact %}checked="checked"{% endif %}></input></td>
+          <td><input class="finance-coord" type="checkbox" value="{{trainee.id}}" {% if trainee.finance_coord %}checked="checked"{% endif %}></input></td>
+          <td><input class="media-coord" type="checkbox" value="{{trainee.id}}" {% if trainee.media_coord %}checked="checked"{% endif %}></input></td>
+          <td><input class="stat-coord" type="checkbox" value="{{trainee.id}}" {% if trainee.stat_coord %}checked="checked"{% endif %}></input></td>
         </tr>
         {% endfor %}
     </tbody>

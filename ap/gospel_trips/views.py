@@ -233,6 +233,9 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   def get_trainee_dict(gospel_trip, destination_qs, question_qs, general_items):
     data = []
     contacts = destination_qs.values_list('trainee_contacts', flat=True)
+    f_coords = destination_qs.values_list('finance_coords', flat=True)
+    m_coords = destination_qs.values_list('media_coords', flat=True)
+    s_coords = destination_qs.values_list('stat_coords', flat=True)
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
     # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
@@ -243,6 +246,9 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
           'name': t.full_name,
           'id': t.id,
           'trainee_contact': t.id in contacts,
+          'finance_coord': t.id in f_coords,
+          'media_coord': t.id in m_coords,
+          'stat_coord': t.id in s_coords,
           'destination': destination_qs.filter(trainees=t).first(),
           'responses': []}
       responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
@@ -312,6 +318,9 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
     data = []
     dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'trainee_contacts')
     contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('trainee_contacts', flat=True)
+    f_coords = Destination.objects.filter(gospel_trip=gospel_trip).values_list('finance_coords', flat=True)
+    m_coords = Destination.objects.filter(gospel_trip=gospel_trip).values_list('media_coords', flat=True)
+    s_coords = Destination.objects.filter(gospel_trip=gospel_trip).values_list('stat_coords', flat=True)
     qs = Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()).select_related('locality__city').prefetch_related('trainee_contacts', 'destination')
     all_answers = gospel_trip.answer_set.filter(question__label__startswith='Destination Preference').values('response', 'question__label')
     for t in qs:
@@ -322,7 +331,10 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
         'term': t.current_term,
         'locality': t.locality.city.name,
         'destination': 0,
-        'trainee_contact': t.id in contacts
+        'trainee_contact': t.id in contacts,
+        'finance_coord': t.id in f_coords,
+        'media_coord': t.id in m_coords,
+        'stat_coord': t.id in s_coords
       })
       dest = dest_dict.filter(trainees__in=[t])
       if dest.exists():
