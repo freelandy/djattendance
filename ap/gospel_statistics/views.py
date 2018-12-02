@@ -29,11 +29,13 @@ ctx = dict()
 for i in _attributes:
   ctx[i] = 0
 
+C_TERM = Term.current_term()
+
 
 def get_week():
   for i in range(0, 21):
-    if Term.current_term().startdate_of_week(i) <= date.today() \
-      and Term.current_term().enddate_of_week(i) >= date.today():
+    if C_TERM.startdate_of_week(i) <= date.today() \
+      and C_TERM.enddate_of_week(i) >= date.today():
       return i
 
 
@@ -48,8 +50,8 @@ class GospelStatisticsView(TemplateView):
       entry = dict()
       entry['gospel_pair'] = p
       stat = gospel_statistics.filter(gospelpair=p, week=get_week())[0]
-      for i in range(len(_attributes)):
-        entry[_attributes[i]] = eval('stat.' + _attributes[i])
+      for i in _attributes:
+        entry[i] = eval('stat.' + i)
       data.append(entry)
     return data
 
@@ -85,9 +87,9 @@ class GospelStatisticsView(TemplateView):
     list_of_pairs = request.POST.getlist('pairs')
     list_of_stats = request.POST.getlist('inputs')
     current_week = get_week()
-    for i in range(len(list_of_pairs)):
-      index = i * 13
-      pair = GospelPair.objects.filter(id=list_of_pairs[i])
+    index = 0
+    for i in list_of_pairs:
+      pair = GospelPair.objects.filter(id=i)
       stat = GospelStat.objects.filter(gospelpair=pair, week=current_week)[0]
       # #Why doesn't this work?
       # for i in range(13):
@@ -106,6 +108,7 @@ class GospelStatisticsView(TemplateView):
       stat.district_meeting = list_of_stats[index + 11]
       stat.conference = list_of_stats[index + 12]
       stat.save()
+      index += 13
     return redirect(reverse('gospel_statistics:gospel-statistics-view'))
 
   def get_context_data(self, **kwargs):
@@ -113,7 +116,7 @@ class GospelStatisticsView(TemplateView):
     context = super(GospelStatisticsView, self).get_context_data(**kwargs)
     context['page_title'] = 'Team Statistics'
     context['team'] = current_user.team
-    context['gospel_pairs'] = GospelPair.objects.filter(team=current_user.team, term=Term.current_term())
+    context['gospel_pairs'] = GospelPair.objects.filter(team=current_user.team, term=C_TERM)
     context['cols'] = attributes
     context['week'] = get_week()
     context['current'] = []
@@ -131,21 +134,19 @@ class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
 
   def post(self, request, *args, **kwargs):
-    # Do we need this?
-    context = self.get_context_data()
     # Retrieve the selected trainees
     list_of_trainee_id = request.POST.getlist('inputs')
     list_of_trainees = []
     for each in list_of_trainee_id:
       list_of_trainees.extend(Trainee.objects.filter(id=each))
     # Create a new empty gospel pair
-    gospelpair = GospelPair(team=context['team'], term=Term.current_term())
+    gospelpair = GospelPair(team=context['team'], term=C_TERM)
     gospelpair.save()
     # Add the trainees
     for each in list_of_trainees:
       gospelpair.trainees.add(each)
     # Check for duplicate
-    for each in GospelPair.objects.filter(team=context['team'], term=Term.current_term()):
+    for each in GospelPair.objects.filter(team=context['team'], term=C_TERM):
       # #Need to add an alert
       if each.id is not gospelpair.id and set(each.trainees.all()) == set(gospelpair.trainees.all()):
         gospelpair.delete()

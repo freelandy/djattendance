@@ -15,6 +15,15 @@ class GospelPair(models.Model):
   term = models.ForeignKey(Term, blank=True, null=True, on_delete=models.SET_NULL)
   trainees = models.ManyToManyField(Trainee, related_name="gospel_statistics")
 
+  def __unicode__(self):
+    try:
+      result = ""
+      for each in self.trainees.all():
+        result += "%s, %s; " % (each.lastname, each.firstname)
+      return result[:-2]
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
 
 # Gospel Statistics
 class GospelStat(models.Model):
@@ -35,3 +44,11 @@ class GospelStat(models.Model):
   # New students present at the district meeting
   district_meeting = models.PositiveSmallIntegerField(default=0)
   conference = models.PositiveSmallIntegerField(default=0)
+
+  def __unicode__(self):
+    try:
+      result = self.gospelpair.__unicode__()
+      print result
+      return result+"; Week:%d" % (self.week)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
