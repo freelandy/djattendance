@@ -506,9 +506,10 @@ def assign_destination(request, pk):
 
 
 @group_required(['training_assistant'])
-def assign_trainee_role(request, pk, field):
+def assign_trainee_role(request, pk):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
+    field = request.POST.get('field', None)
     if field in ['trainee_contacts', 'finance_coords', 'media_coords', 'stat_coords']:
       trainee_id = request.POST.get('trainee_id', 0)
       is_contact = request.POST.get('is_contact', 'false') == 'true'

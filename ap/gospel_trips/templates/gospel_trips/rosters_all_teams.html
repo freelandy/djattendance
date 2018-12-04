@@ -8,13 +8,15 @@
 {% block scripts %}
 <script type="text/javascript">
   $(document).ready(() => {
-    $(".trainee-contact").on("click", function() {
+    $(".assign-role").on("click", function() {
+      let val = $(this).val().split('-');
       $.ajax({
         type: "POST",
-        url: "{% url 'gospel_trips:assign-trainee-role' pk=request.resolver_match.kwargs.pk field='trainee_contacts' %}",
+        url: "{% url 'gospel_trips:assign-trainee-role' pk=gtpk %}",
         data: {
-          'trainee_id': $(this).val(),
-          'is_contact': $(this).prop('checked')
+          'trainee_id': val[1],
+          'is_contact': $(this).prop('checked'),
+          'field': val[0]
         },
         success: function(data){
           if (data.success){
@@ -82,10 +84,10 @@
         <tr>
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
-          <td><input class="trainee-contact" type="checkbox" value="{{trainee.id}}" {% if trainee.trainee_contact %}checked="checked"{% endif %}></input></td>
-          <td><input class="finance-coord" type="checkbox" value="{{trainee.id}}" {% if trainee.finance_coord %}checked="checked"{% endif %}></input></td>
-          <td><input class="media-coord" type="checkbox" value="{{trainee.id}}" {% if trainee.media_coord %}checked="checked"{% endif %}></input></td>
-          <td><input class="stat-coord" type="checkbox" value="{{trainee.id}}" {% if trainee.stat_coord %}checked="checked"{% endif %}></input></td>
+          <td><input class="assign-role" type="checkbox" value="trainee_contacts-{{trainee.id}}" {% if trainee.trainee_contact %}checked="checked"{% endif %}></input></td>
+          <td><input class="assign-role" type="checkbox" value="finance_coords-{{trainee.id}}" {% if trainee.finance_coord %}checked="checked"{% endif %}></input></td>
+          <td><input class="assign-role" type="checkbox" value="media_coords-{{trainee.id}}" {% if trainee.media_coord %}checked="checked"{% endif %}></input></td>
+          <td><input class="assign-role" type="checkbox" value="stat_coords-{{trainee.id}}" {% if trainee.stat_coord %}checked="checked"{% endif %}></input></td>
         </tr>
         {% endfor %}
     </tbody>
