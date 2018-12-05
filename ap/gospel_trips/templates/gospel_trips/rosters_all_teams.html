@@ -12,7 +12,7 @@
       let val = $(this).val().split('-');
       $.ajax({
         type: "POST",
-        url: "{% url 'gospel_trips:assign-trainee-role' pk=gtpk %}",
+        url: "{% url 'gospel_trips:assign-trainee-role' pk=request.resolver_match.kwargs.pk %}",
         data: {
           'trainee_id': val[1],
           'is_contact': $(this).prop('checked'),

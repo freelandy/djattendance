@@ -91,6 +91,9 @@
       <tr>
         <th>Clear Application</th>
         <th>Trainee Contact</th>
+        <th>Finance Coord</th>
+        <th>Media Coord</th>
+        <th>Stat Coord</th>
         <th>Trainee</th>
         <th>Destination</th>
         {% for q in questions %}
@@ -106,6 +109,9 @@
         <tr>
           <th><button value="{% url 'gospel_trips:admin-clear-app' request.resolver_match.kwargs.pk trainee.id %}" class="btn btn-danger" title="Clear"/><span class="glyphicon glyphicon-trash"></span></button></th>
           <td>{% if trainee.trainee_contact %} Yes {% endif %}</td>
+          <td>{% if trainee.finance_coord %} Yes {% endif %}</td>
+          <td>{% if trainee.media_coord %} Yes {% endif %}</td>
+          <td>{% if trainee.stat_coord %} Yes {% endif %}</td>
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
           {% for response in trainee.responses %}
