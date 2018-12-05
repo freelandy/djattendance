@@ -236,9 +236,9 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     f_coords = destination_qs.values_list('finance_coords', flat=True)
     m_coords = destination_qs.values_list('media_coords', flat=True)
     s_coords = destination_qs.values_list('stat_coords', flat=True)
+    d_trainees = destination_qs.values_list('trainees')
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
-    # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
     get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))  # | Q(id__in=trainees_assigned))
     get_these_trainees = get_these_trainees.filter(id__in=gospel_trip.get_submitted_trainees())
     for t in get_these_trainees:
@@ -280,7 +280,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
     question_qs = Question.objects.filter(section__gospel_trip=gt).exclude(answer_type="None")
     sections_to_show = Section.objects.filter(id__in=question_qs.values_list('section'))
-    all_destinations = Destination.objects.filter(gospel_trip=gt)
+    all_destinations = Destination.objects.filter(gospel_trip=gt).prefetch_related('trainees', 'trainee_contacts', 'finance_coords', 'media_coords', 'stat_coords')
 
     questions = self.request.GET.getlist('questions', [0])
     preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(questions)])
