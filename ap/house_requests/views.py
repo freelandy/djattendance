@@ -141,28 +141,7 @@ class FramingRequestCreate(RequestCreate, generic.edit.CreateView):
   form_class = FramingRequestForm
 
 
-class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
-  template_name = 'maintenance/request_form.html'
-  model = MaintenanceRequest
-  success_url = reverse_lazy('house_requests:maintenance-list')
-  form_class = MaintenanceRequestForm
-
-  def get_context_data(self, **kwargs):
-    ctx = super(MaintenanceRequestCreate, self).get_context_data(**kwargs)
-    ctx['rooms'] = serialize('json', Room.objects.all())
-    return ctx
-
-  def get_form_kwargs(self):
-    kwargs = super(MaintenanceRequestCreate, self).get_form_kwargs()
-    kwargs['user'] = self.request.user
-    return kwargs
-
-
 # the following view classes get everything they need from inheritance
-class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
-  pass
-
-
 class FramingRequestUpdate(FramingRequestCreate, generic.edit.UpdateView):
   pass
 
@@ -209,6 +188,33 @@ class RequestList(generic.ListView):
         reqs = chain(reqs, self.model.objects.filter(status=status).filter(date_requested__gte=Term.current_term().get_date(0, 0)).order_by('date_requested'))
       context['reqs'] = reqs
     return context
+
+
+class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView, RequestList):
+  template_name = 'maintenance/request_form.html'
+  model = MaintenanceRequest
+  success_url = reverse_lazy('house_requests:maintenance-list')
+  form_class = MaintenanceRequestForm
+
+  DataTableView = MaintenanceRequestJSON
+  modify_status_url = 'house_requests:maintenance-modify-status'
+  ta_comment_url = 'house_requests:maintenance-tacomment'
+  source_url = reverse_lazy("house_requests:maintenance-json")
+
+  def get_context_data(self, **kwargs):
+    ctx = super(MaintenanceRequestCreate, self).get_context_data(**kwargs)
+    ctx['rooms'] = serialize('json', Room.objects.all())
+    return ctx
+
+  def get_form_kwargs(self):
+    kwargs = super(MaintenanceRequestCreate, self).get_form_kwargs()
+    kwargs['user'] = self.request.user
+    return kwargs
+
+
+# gets everything from inheritance
+class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
+  pass
 
 
 class MaintenanceRequestList(RequestList):

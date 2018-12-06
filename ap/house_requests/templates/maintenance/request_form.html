@@ -52,6 +52,7 @@
 {% endblock %}
 
 {% block scripts %}
+  {{ block.super }}
   {{ form.media }}
   <script>
     var rooms = {{ rooms|safe }};
@@ -95,6 +96,54 @@
 
   {{ form.urgent }} Urgent
 {% endblock %}
+
+{% block request_table %}
+  <thead>
+    <tr>
+      <th>Urgent</th>
+      <th>Date</th>
+      <th>Location</th>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Status</th>
+      <th>Comments</th>
+      <th>Actions</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- regroup them initially? -->
+    {% for request in object_list %}
+      <tr>
+        <td>
+          {% if request.urgent %}*{% endif %}
+        </td>
+        <td>{{request.date_requested|date:"M d"}}</td>
+        <td>
+          {% if request.room %}
+            {{request.room}}
+          {% else %}
+            {{request.house}}
+          {% endif %}
+        </td>
+        <td>{{request.trainee_author.full_name}}</td>
+        <td>{{request.trainee_author.meta.phone}}</td>
+        <td>{{request.request_type}}</td>
+        <td>{{request.description}}</td>
+        <td>{{request.status}}</td> <!-- need to actually spell it out? -->
+        <td>{{request.TA_comments}}</td>
+        <td></td> <!-- TODO add action buttons -->
+        <td><a href="{{ request.get_absolute_url }}">View</a></td>
+      </tr>
+    {% endfor %}
+
+    {% endblock %}
+  </tbody>
+
+
 
 {% block extra_form_elements %}
   <div class="alert alert-warning">
