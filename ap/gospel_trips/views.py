@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
+from .constants import DESTINATION_FIELDS
 from .forms import (AnswerForm, GospelTripForm, LocalImageForm, NonTraineeForm,
                     SectionFormSet)
 from .models import (Answer, Destination, GospelTrip, NonTrainee, Question,
@@ -230,25 +231,31 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   group_required = ['training_assistant']
 
   @staticmethod
-  def get_trainee_dict(gospel_trip, destination_qs, question_qs, general_items):
+  def get_trainee_dict(gospel_trip, question_qs, general_items):
     data = []
-    contacts = destination_qs.values_list('trainee_contacts', flat=True)
-    f_coords = destination_qs.values_list('finance_coords', flat=True)
-    m_coords = destination_qs.values_list('media_coords', flat=True)
-    s_coords = destination_qs.values_list('stat_coords', flat=True)
-    d_trainees = destination_qs.values_list('trainees')
+    prefetch = ['trainees']
+    prefetch.extend([item for item in general_items if item in DESTINATION_FIELDS])
+    destination_qs = Destination.objects.filter(gospel_trip=gospel_trip).prefetch_related(*prefetch)
+
+    contacts = f_coords = m_coords = s_coords = []
+    if 'trainee_contacts' in general_items:
+      contacts = destination_qs.values_list('trainee_contacts', flat=True)
+    if 'finance_coords' in general_items:
+      f_coords = destination_qs.values_list('finance_coords', flat=True)
+    if 'media_coords' in general_items:
+      m_coords = destination_qs.values_list('media_coords', flat=True)
+    if 'stat_coords' in general_items:
+      s_coords = destination_qs.values_list('stat_coords', flat=True)
+
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
-    get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))  # | Q(id__in=trainees_assigned))
+    get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))
     get_these_trainees = get_these_trainees.filter(id__in=gospel_trip.get_submitted_trainees())
     for t in get_these_trainees:
+      ID = t.id
       entry = {
           'name': t.full_name,
-          'id': t.id,
-          'trainee_contact': t.id in contacts,
-          'finance_coord': t.id in f_coords,
-          'media_coord': t.id in m_coords,
-          'stat_coord': t.id in s_coords,
+          'id': ID,
           'destination': destination_qs.filter(trainees=t).first(),
           'responses': []}
       responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
@@ -259,7 +266,16 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
           except ObjectDoesNotExist:
             r['answer__response'] = "Destination Does Not Exist"
       entry['responses'] = responses
+
       if general_items:
+        if contacts:
+          entry['trainee_contacts'] = "Yes" if ID in contacts else ""
+        if f_coords:
+          entry['finance_coords'] = "Yes" if ID in f_coords else ""
+        if m_coords:
+          entry['media_coords'] = "Yes" if ID in m_coords else ""
+        if s_coords:
+          entry['stat_coords'] = "Yes" if ID in s_coords else ""
         if 'term' in general_items:
           entry['term'] = t.current_term
         if 'gender' in general_items:
@@ -280,7 +296,6 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
     question_qs = Question.objects.filter(section__gospel_trip=gt).exclude(answer_type="None")
     sections_to_show = Section.objects.filter(id__in=question_qs.values_list('section'))
-    all_destinations = Destination.objects.filter(gospel_trip=gt).prefetch_related('trainees', 'trainee_contacts', 'finance_coords', 'media_coords', 'stat_coords')
 
     questions = self.request.GET.getlist('questions', [0])
     preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(questions)])
@@ -292,7 +307,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     ctx['chosen'] = question_qs.values_list('id', flat=True)
     ctx['chosen_general'] = general
     ctx['sections'] = sections_to_show
-    ctx['trainees'] = self.get_trainee_dict(gt, all_destinations, question_qs, general)
+    ctx['trainees'] = self.get_trainee_dict(gt, question_qs, general)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
 
@@ -316,25 +331,27 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
   @staticmethod
   def get_trainee_dict(gospel_trip):
     data = []
-    dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'trainee_contacts')
-    contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('trainee_contacts', flat=True)
-    f_coords = Destination.objects.filter(gospel_trip=gospel_trip).values_list('finance_coords', flat=True)
-    m_coords = Destination.objects.filter(gospel_trip=gospel_trip).values_list('media_coords', flat=True)
-    s_coords = Destination.objects.filter(gospel_trip=gospel_trip).values_list('stat_coords', flat=True)
+    destination_qs = Destination.objects.filter(gospel_trip=gospel_trip).prefetch_related(*DESTINATION_FIELDS)
+    dest_dict = destination_qs.values('id', 'name', 'trainee_contacts')
+    contacts = destination_qs.values_list('trainee_contacts', flat=True)
+    f_coords = destination_qs.values_list('finance_coords', flat=True)
+    m_coords = destination_qs.values_list('media_coords', flat=True)
+    s_coords = destination_qs.values_list('stat_coords', flat=True)
     qs = Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()).select_related('locality__city').prefetch_related('trainee_contacts', 'destination')
     all_answers = gospel_trip.answer_set.filter(question__label__startswith='Destination Preference').values('response', 'question__label')
     for t in qs:
+      ID = t.id
       answer_set = all_answers.filter(trainee=t)
       data.append({
-        'id': t.id,
+        'id': ID,
         'name': t.full_name,
         'term': t.current_term,
         'locality': t.locality.city.name,
         'destination': 0,
-        'trainee_contact': t.id in contacts,
-        'finance_coord': t.id in f_coords,
-        'media_coord': t.id in m_coords,
-        'stat_coord': t.id in s_coords
+        'trainee_contact': ID in contacts,
+        'finance_coord': ID in f_coords,
+        'media_coord': ID in m_coords,
+        'stat_coord': ID in s_coords
       })
       dest = dest_dict.filter(trainees__in=[t])
       if dest.exists():
@@ -510,7 +527,7 @@ def assign_trainee_role(request, pk):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
     field = request.POST.get('field', None)
-    if field in ['trainee_contacts', 'finance_coords', 'media_coords', 'stat_coords']:
+    if field in DESTINATION_FIELDS:
       trainee_id = request.POST.get('trainee_id', 0)
       is_contact = request.POST.get('is_contact', 'false') == 'true'
       try:

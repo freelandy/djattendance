@@ -75,6 +75,10 @@
   {% endfor %}
   <h3>General Information</h3>
   <select class="select-fk" name="general" multiple="multiple">
+    <option value="trainee_contacts" {% if 'trainee_contacts' in chosen_general %} selected="selected" {% endif %}>Trainee Contact</option>
+    <option value="finance_coords" {% if 'finance_coords' in chosen_general %} selected="selected" {% endif %}>Finance Coord</option>
+    <option value="media_coords" {% if 'media_coords' in chosen_general %} selected="selected" {% endif %}>Media Coord</option>
+    <option value="stat_coords" {% if 'stat_coords' in chosen_general %} selected="selected" {% endif %}>Stats Coord</option>
     <option value="term" {% if 'term' in chosen_general %} selected="selected" {% endif %}>Term</option>
     <option value="gender" {% if 'gender' in chosen_general %} selected="selected" {% endif %}>Gender</option>
     <option value="locality" {% if 'locality' in chosen_general %} selected="selected" {% endif %}>Locality</option>
@@ -90,10 +94,6 @@
     <thead>
       <tr>
         <th>Clear Application</th>
-        <th>Trainee Contact</th>
-        <th>Finance Coord</th>
-        <th>Media Coord</th>
-        <th>Stat Coord</th>
         <th>Trainee</th>
         <th>Destination</th>
         {% for q in questions %}
@@ -108,10 +108,6 @@
       {% for trainee in trainees %}
         <tr>
           <th><button value="{% url 'gospel_trips:admin-clear-app' request.resolver_match.kwargs.pk trainee.id %}" class="btn btn-danger" title="Clear"/><span class="glyphicon glyphicon-trash"></span></button></th>
-          <td>{% if trainee.trainee_contact %} Yes {% endif %}</td>
-          <td>{% if trainee.finance_coord %} Yes {% endif %}</td>
-          <td>{% if trainee.media_coord %} Yes {% endif %}</td>
-          <td>{% if trainee.stat_coord %} Yes {% endif %}</td>
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
           {% for response in trainee.responses %}
@@ -130,7 +126,6 @@
     <tfoot>
       <tr>
         <th>Clear Application</th>
-        <th>Trainee Contact</th>
         <th>Trainee</th>
         <th>Destination</th>
         {% for q in questions %}

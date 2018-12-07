@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from .constants import HELP_TEXT
+from .constants import DESTINATION_FIELDS, HELP_TEXT
 
 
 class GospelTrip(models.Model):
@@ -65,7 +65,7 @@ class Destination(models.Model):
   trainees = models.ManyToManyField(Trainee, related_name='destination')
 
   def set_trainee_as(self, trainee, field, set_to=True):
-    if field in ['trainee_contacts', 'finance_coords', 'media_coords', 'stat_coords']:
+    if field in DESTINATION_FIELDS:
       attr = getattr(self, field)
       if set_to:
         attr.add(trainee)
@@ -76,10 +76,8 @@ class Destination(models.Model):
 
   def remove_trainee(self, trainee):
     self.trainees.remove(trainee)
-    self.set_trainee_contact(trainee, 'trainee_contacts', False)
-    self.set_trainee_contact(trainee, 'finance_coords', False)
-    self.set_trainee_contact(trainee, 'media_coords', False)
-    self.set_trainee_contact(trainee, 'stat_coords', False)
+    for field in DESTINATION_FIELDS:
+      self.set_trainee_contact(trainee, field, False)
 
   def __unicode__(self):
     try:
