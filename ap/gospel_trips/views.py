@@ -303,9 +303,24 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
 
     general = self.request.GET.getlist('general', [])
 
+    general_options = collections.OrderedDict([
+      ('trainee_contacts', 'Trainee Contact'),
+      ('finance_coords', 'Finance Coord'),
+      ('media_coords', 'Media Coord'),
+      ('stat_coords', 'Stats Coord'),
+      ('term', 'Term'),
+      ('gender', 'Gender'),
+      ('locality', 'Locality'),
+      ('phone', 'Phone'),
+      ('email', 'Email'),
+      ('birthdate', 'Birthdate')
+
+    ])
+
     ctx['questions'] = question_qs
     ctx['chosen'] = question_qs.values_list('id', flat=True)
     ctx['chosen_general'] = general
+    ctx['general_options'] = general_options
     ctx['sections'] = sections_to_show
     ctx['trainees'] = self.get_trainee_dict(gt, question_qs, general)
     ctx['page_title'] = 'Gospel Trip Response Report'
