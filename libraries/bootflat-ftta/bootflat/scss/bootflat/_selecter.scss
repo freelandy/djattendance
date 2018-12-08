@@ -254,7 +254,8 @@ $selecter-item-selected-border-color:  $blue !default;
 			}
 		}
 	}
-
+	
+	
 	.bible-selector{
 		margin: 0;
 		padding: 0;
@@ -271,10 +272,18 @@ $selecter-item-selected-border-color:  $blue !default;
 
 		&:hover {
 			cursor: pointer;
+			
+			
 		}
 
 		&:disabled{
 			cursor: default;
 		}
+	}
+	
+	.bible-selector:hover {
+		background-color: #a5c5d0;
+		color: white; 
+		display: block;
 	}
 }
