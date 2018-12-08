@@ -61,21 +61,6 @@ def NewRequestPage(request):
   return render(request, 'new_request_page.html')
 
 
-def modify_model_status_framing(model, url):
-  @group_required(['frames'], raise_exception=True)
-  def modify_status_framing(request, status, oid, message_func=None):
-    obj = get_object_or_404(model, pk=oid)
-    obj.status = status
-    obj.save()
-    if message_func:
-      message = message_func(obj)
-    else:
-      message = "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_display())
-    messages.add_message(request, messages.SUCCESS, message)
-    return redirect(url)
-  return modify_status_framing
-
-
 def MaintenanceReport(request):
   if request.POST:
     c = request.POST.get('command')
@@ -102,7 +87,7 @@ def MaintenanceReport(request):
 
 modify_maintenance_status = modify_model_status(MaintenanceRequest, reverse_lazy('house_requests:maintenance-list'))
 modify_linens_status = modify_model_status(LinensRequest, reverse_lazy('house_requests:linens-list'))
-modify_framing_status = modify_model_status_framing(FramingRequest, reverse_lazy('house_requests:framing-list'))
+modify_framing_status = modify_model_status(FramingRequest, reverse_lazy('house_requests:framing-list'), ['frames'])
 
 
 class MaintenanceRequestTAComment(generic.UpdateView):
