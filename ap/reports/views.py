@@ -12,6 +12,7 @@ from aputils.eventutils import EventUtils
 from aputils.utils import render_to_pdf
 from attendance.models import Roll
 from braces.views import GroupRequiredMixin
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.generic.base import TemplateView
 from leaveslips.models import GroupSlip
@@ -189,7 +190,7 @@ def generate_zip(request):
   return response
 
 
-# given a list or rolls and groupslips, return rolls that are not excused by rolls
+# given a list or rolls and groupslips, return rolls that are not excused by groupslips
 def rolls_excused_by_groupslips(rolls, groupslips):
   unexcused_rolls = rolls
   for group_slip in groupslips:
@@ -237,8 +238,6 @@ def attendance_report_trainee(request):
     date_to = ct.end
 
   rolls = Roll.objects.filter(trainee=trainee, date__gte=date_from, date__lte=date_to).exclude(status='P').exclude(event__monitor=None)
-  if trainee.self_attendance:
-    rolls = rolls.filter(submitted_by=trainee)
 
   start_datetime = datetime.combine(date_from, datetime.min.time())
   end_datetime = datetime.combine(date_to, datetime.max.time())
@@ -279,8 +278,11 @@ def attendance_report_trainee(request):
   # exclude absent rolls excused by individual slips
   # missed_classes = missed_classes.exclude(leaveslips__status='A')
 
+  IGNORE_LS_TYPES = ['SERV', 'CONF', 'TTRIP', 'FWSHP']  # leave slips types that don't affect attendance
+  missed_classes = missed_classes.filter(~(Q(leaveslips__type__in=IGNORE_LS_TYPES) & Q(leaveslips__status='A')))
+
   # exclude absent rolls excused by group slips
-  # missed_classes = rolls_excused_by_groupslips(missed_classes, group_slips)
+  missed_classes = rolls_excused_by_groupslips(missed_classes, group_slips.filter(type__in=IGNORE_LS_TYPES))
 
   res["classes_missed_percentage"] = str(round(missed_classes.count() / float(possible_class_rolls_count) * 100, 2)) + "%"
 

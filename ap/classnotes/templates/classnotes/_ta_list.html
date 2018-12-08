@@ -34,6 +34,8 @@ $(document).ready(() => {
           <th><input type="checkbox" id="checkall" /></th>
           <th> Edit </th>
           <th> Name </th>
+          <th> Class Name </th>
+          <th> Class Date </th>
           <th> Status</th>
           <th> Date Assigned </th>
           <th> Due Date </th>
@@ -50,6 +52,8 @@ $(document).ready(() => {
           </a>
         </td>
         <td>{{classnote.trainee.full_name}}</td>
+        <td>{{classnote.event.name}}</td>
+        <td>{{classnote.date}}</td>
         <td>
           {% if classnote.approved %}
             <span class="label label-primary received">Approved</span>
