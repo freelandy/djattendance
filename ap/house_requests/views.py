@@ -2,15 +2,11 @@ from itertools import chain
 
 from ap.base_datatable_view import BaseDatatableView  # , DataTableViewerMixin
 from aputils.trainee_utils import is_TA
-from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse_lazy
-
-from django.contrib import messages
-
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render
 from django.views import generic
 from houses.models import Room
 from terms.models import Term
