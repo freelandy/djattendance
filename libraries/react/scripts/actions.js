@@ -318,7 +318,6 @@ export const postLeaveSlip = (values) => {
   };
 
   return (dispatch, getState) => {
-    let slipId = getState().form.leaveSlip.id || null
     var userId = getState().trainee.id
     var tas = getState().tas
     for (var ta of tas) {
@@ -327,6 +326,8 @@ export const postLeaveSlip = (values) => {
         break
       }
     }
+
+    let slipId = getState().form.leaveSlip.id || null
     slip.id = slipId
     return $.ajax({
       url: '/api/individualslips/',
@@ -462,6 +463,15 @@ export const postGroupSlip = (gSlip) => {
   }
 
   return function(dispatch, getState) {
+    var userId = getState().trainee.id
+    var tas = getState().tas
+    for (var ta of tas) {
+      if (ta.id == userId) {
+        slip.status = "A";
+        break
+      }
+    }
+
     let slipId = getState().form.groupSlip.id || null
     slip.id = slipId
     return $.ajax({
