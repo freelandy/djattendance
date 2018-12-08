@@ -37,7 +37,7 @@ $(function() {
       <select id="classnotes_ta_list" name="classnotes_ta_list">
         <option {% if selected_ta == None %}selected="selected"{% endif %} value="-1">All TA's</option>
         {% for ta in TA_list %}
-          <option {% if ta.id == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
+          <option {% if ta.id == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}{{ta.id}}{{selected_ta}}</option>
         {% endfor %}
       </select>
     </form>
