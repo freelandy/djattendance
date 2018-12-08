@@ -1,11 +1,14 @@
+import cStringIO as StringIO
 import json
 from datetime import datetime
 
+import xhtml2pdf.pisa as pisa
 from accounts.models import Trainee
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.utils import render_to_pdf
 from braces.views import GroupRequiredMixin, LoginRequiredMixin
+from cgi import escape
 from classes.models import Class
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -19,10 +22,10 @@ from terms.models import Term
 
 from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Makeup, Responses, Section, Session
-from .utils import (get_exam_context_data, get_exam_questions, is_float,
-                    makeup_available, save_exam_creation,
-                    save_grader_scores_and_comments, save_responses,
-                    trainee_can_take_exam)
+from .utils import (get_exam_context_data, get_exam_preview_context_data,
+                    get_exam_questions, is_float, makeup_available,
+                    save_exam_creation, save_grader_scores_and_comments,
+                    save_responses, trainee_can_take_exam)
 
 
 class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
@@ -244,13 +247,13 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
 
         sessions = trainee.current_sessions
         # Save grades for trainees who use paper submission
-        session = Session(
-            exam=exam,
-            trainee=trainee,
-            is_submitted_online=False,
-            time_finalized=datetime.now(),
-            is_graded=True,
-            grade=float(grades[index]))
+        session, created = Session.objects.update_or_create(
+          exam=exam,
+          trainee=trainee)
+        session.is_submitted_online=False
+        session.time_finalized=datetime.now()
+        session.is_graded=True
+        session.grade=float(grades[index])
         session.save()
 
       grades2 = P.getlist('session-id-grade')
@@ -398,13 +401,7 @@ class PreviewExamView(GroupRequiredMixin, SuccessMessageMixin, ListView):
 
   def get_context_data(self, **kwargs):
     context = super(PreviewExamView, self).get_context_data(**kwargs)
-    return get_exam_context_data(
-        context,
-        self._get_exam(),
-        self._exam_available(),
-        self._get_session(),
-        "Take",
-        False)
+    return get_exam_preview_context_data(context, self._get_exam())
 
 
 class TakeExamView(SuccessMessageMixin, CreateView):
