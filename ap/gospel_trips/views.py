@@ -234,10 +234,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     data = []
     contacts = destination_qs.values_list('team_contacts', flat=True)
     destination_names = destination_qs.values('name')
-    trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
-    # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
-    get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))  # | Q(id__in=trainees_assigned))
-    get_these_trainees = get_these_trainees.filter(id__in=gospel_trip.get_submitted_trainees())
+    get_these_trainees = Trainee.objects.filter(Q(id__in=gospel_trip.get_submitted_trainees()))
     for t in get_these_trainees:
       entry = {
           'name': t.full_name,
