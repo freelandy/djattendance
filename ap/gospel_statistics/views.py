@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 from terms.models import Term
 from aputils.decorators import group_required
+from braces.views import GroupRequiredMixin
 
 from .models import GospelPair, GospelStat
 from teams.models import Team
@@ -113,22 +114,42 @@ class GospelStatisticsView(TemplateView):
 
   def get_context_data(self, **kwargs):
     current_user = self.request.user
-    context = super(GospelStatisticsView, self).get_context_data(**kwargs)
-    context['page_title'] = 'Team Statistics'
-    context['team'] = current_user.team
-    context['gospel_pairs'] = GospelPair.objects.filter(team=current_user.team, term=C_TERM)
-    context['cols'] = attributes
-    context['week'] = get_week()
-    context['current'] = []
-    context['atts'] = _attributes
+    ctx = super(GospelStatisticsView, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Team Statistics'
+    ctx['team'] = current_user.team
+    ctx['gospel_pairs'] = GospelPair.objects.filter(team=current_user.team, term=C_TERM)
+    ctx['cols'] = attributes
+    ctx['week'] = get_week()
+    ctx['current'] = []
+    ctx['atts'] = _attributes
     # Current week stat
-    context['current'] = self.get_stats_list(context['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=context['gospel_pairs']))
+    ctx['current'] = self.get_stats_list(ctx['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=ctx['gospel_pairs']))
     # All 20 week stat
-    context['all_stat'] = self.get_all_stats_list(context['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=context['gospel_pairs']))
-    return context
+    ctx['all_stat'] = self.get_all_stats_list(ctx['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=ctx['gospel_pairs']))
+    return ctx
 
-class GenerateReportView(TemplateView):
+class GenerateReportView(GroupRequiredMixin, TemplateView):
   template_name = "gospel_statistics/generate_report.html"
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    ctx = {
+      'page_title': 'Generate Report',
+      'attributes': attributes,
+      'campuses': Team.objects.filter(type='CAMPUS'),
+      'communities': Team.objects.filter(type='COM'),
+      'weeks': [i for i in range(20)]
+    }
+    return ctx
+
+  def post(self, request, *args, **kwargs):
+    teams = request.POST.getlist('teams')
+    weeks = request.POST.getlist('weeks')
+    for i in teams:
+      print i
+    for j in weeks:
+      print j
+    return 
 
 class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
@@ -140,13 +161,13 @@ class NewGospelPairView(TemplateView):
     for each in list_of_trainee_id:
       list_of_trainees.extend(Trainee.objects.filter(id=each))
     # Create a new empty gospel pair
-    gospelpair = GospelPair(team=context['team'], term=C_TERM)
+    gospelpair = GospelPair(team=ctx['team'], term=C_TERM)
     gospelpair.save()
     # Add the trainees
     for each in list_of_trainees:
       gospelpair.trainees.add(each)
     # Check for duplicate
-    for each in GospelPair.objects.filter(team=context['team'], term=C_TERM):
+    for each in GospelPair.objects.filter(team=ctx['team'], term=C_TERM):
       # #Need to add an alert
       if each.id is not gospelpair.id and set(each.trainees.all()) == set(gospelpair.trainees.all()):
         gospelpair.delete()
@@ -158,13 +179,12 @@ class NewGospelPairView(TemplateView):
 
   def get_context_data(self, **kwargs):
     current_user = self.request.user
-    context = super(NewGospelPairView, self).get_context_data(**kwargs)
-    context['page_title'] = 'New Gospel Pair'
-    context['team'] = current_user.team
-    context['members'] = Trainee.objects.filter(team=current_user.team)
-    return context
+    ctx = super(NewGospelPairView, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'New Gospel Pair'
+    ctx['team'] = current_user.team
+    ctx['members'] = Trainee.objects.filter(team=current_user.team)
+    return ctx
 
-# Create a delete function for the delete button for the gospel pairs
 def delete_pair(request):
   # Get the current pair
   current_id = request.POST['pair_id']
@@ -174,9 +194,9 @@ def delete_pair(request):
   return redirect(reverse('gospel_statistics:gospel-statistics-view'))
 
 
-# In Progress (change to class)
 @group_required(['training_assistant'])
 def TAGospelStatisticsView(request):
+  # Campus trainees
   campus = Team.objects.filter(type='CAMPUS')
   campus_pairs = GospelPair.objects.filter(team__in=campus)
   campus_trainees=0
@@ -189,6 +209,7 @@ def TAGospelStatisticsView(request):
       for i in range(len(_attributes)):
         campus_total[i]+=eval('campus_all['+str(index)+'].'+_attributes[i])
 
+  # Community trainees
   community = Team.objects.filter(type='COM')
   community_pairs = GospelPair.objects.filter(team__in=community)
   community_all = GospelStat.objects.filter(gospelpair__in=community_pairs)
@@ -210,7 +231,7 @@ def TAGospelStatisticsView(request):
     community_average.append(i/max(float(community_trainees),1))
 
   #ct = GospelStat.objects.filter(gospelpair__in=pairs)
-  context = {
+  ctx = {
     'page_title': 'Team Statistics Summary',
     'attributes': attributes,
     'campus_total': campus_total,
@@ -218,4 +239,4 @@ def TAGospelStatisticsView(request):
     'campus_average': campus_average,
     'community_average': community_average,
   }
-  return render(request, 'gospel_statistics/ta_gospel_statistics.html', context=context)
+  return render(request, 'gospel_statistics/ta_gospel_statistics.html', context=ctx)
