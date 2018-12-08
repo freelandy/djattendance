@@ -145,11 +145,19 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
   def post(self, request, *args, **kwargs):
     teams = request.POST.getlist('teams')
     weeks = request.POST.getlist('weeks')
-    for i in teams:
-      print i
-    for j in weeks:
-      print j
-    return 
+    report_type = request.POST.get('report_type')
+    save_type = request.POST.get('save_type')
+
+    ##Generate Report here
+
+    ctx = {
+      'page_title': 'Generate Report',
+      'attributes': attributes,
+      'campuses': Team.objects.filter(type='CAMPUS'),
+      'communities': Team.objects.filter(type='COM'),
+      'weeks': [i for i in range(20)]
+    }
+    return super(GenerateReportView, self).render_to_response(ctx)
 
 class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
