@@ -319,6 +319,14 @@ export const postLeaveSlip = (values) => {
 
   return (dispatch, getState) => {
     let slipId = getState().form.leaveSlip.id || null
+    var userId = getState().trainee.id
+    var tas = getState().tas
+    for (var ta of tas) {
+      if (ta.id == userId) {
+        slip.status = "A";
+        break
+      }
+    }
     slip.id = slipId
     return $.ajax({
       url: '/api/individualslips/',
