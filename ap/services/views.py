@@ -737,7 +737,14 @@ class ImportGuestsView(GroupRequiredMixin, TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(ImportGuestsView, self).get_context_data(**kwargs)
+    table_columns = [{
+      "title": "First Name", "data": "First",
+      "title": "Last Name", "data": "Last",
+      "title": "House", "data": "House",
+      "title": "Gender", "data": "Gender"
+    }]
     context['page_title'] = "Import Guest Workers"
+    context['columns'] = json.dumps(table_columns)
     return context
 
 

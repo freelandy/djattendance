@@ -9,20 +9,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.9/jquery.csv.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
+    let cols = {{columns|safe}};
     let table = $('#guests-table').DataTable({
-        columns: [{
-            "title": "First Name",
-            "data": "First"
-        }, {
-            "title": "Last Name",
-            "data": "Last"
-        }, {
-            "title": "House",
-            "data": "House"
-        }, {
-            "title": "Gender",
-            "data": "Gender"
-        }]
+        columns: cols
     });
     $("#fileinput").on("change", function(evt) {
         let f = evt.target.files[0];
