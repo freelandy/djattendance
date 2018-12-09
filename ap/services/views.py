@@ -1,3 +1,4 @@
+import csv
 import json
 from collections import defaultdict
 from datetime import date, datetime
@@ -728,3 +729,23 @@ class ServiceCategoryCountsViewer(FormView):
     context['count_list'] = count_list
 
     return context
+
+
+class ImportGuestsView(GroupRequiredMixin, TemplateView):
+  template_name = 'services/import_guests.html'
+  group_required = ['training_assistant', 'service_schedulers']
+
+  def get_context_data(self, **kwargs):
+    context = super(ImportGuestsView, self).get_context_data(**kwargs)
+    context['page_title'] = "Import Guest Workers"
+    return context
+
+
+@group_required(['training_assistant', 'service_schedulers'])
+def process_guests(request):
+  if request.method == "POST":
+    csv_file = request.FILES['fileinput']
+    reader = csv.DictReader(csv_file)
+    for row in reader:
+      print row
+  return redirect(reverse('services:import-guests'))
