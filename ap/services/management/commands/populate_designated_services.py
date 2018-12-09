@@ -1,5 +1,4 @@
 from datetime import date, datetime, time, timedelta
-
 from accounts.models import Trainee
 from django.core.management.base import BaseCommand
 from services.models.assignment import Assignment
@@ -15,39 +14,10 @@ from terms.models import Term
 # run populate_services before this script
 class Command(BaseCommand):
   # to use: python ap/manage.py populate_designated_services --settings=ap.settings.dev
-  def _create_services(self):
-    scheduler = Trainee.objects.get(firstname="David", lastname="Ye")
-
-    ws, created = WeekSchedule.objects.get_or_create(start=get_next_tuesday(), scheduler=scheduler)
-    cat, created = Category.objects.get_or_create(name="Designated Service")
-    sched = SeasonalServiceSchedule.objects.get(name='FTTA')
-    wg = WorkerGroup.objects.get(name='Trainees')
-    serv, created = Service.objects.get_or_create(
-        name="Attendance Project", code="AP", category=cat, designated=True, weekday=5, start=time(12, 30), end=time(16)
-    )
-    wg = WorkerGroup.objects.get(name='Trainees')
-    serv.schedule.add(sched)
-    serv.save()
-    sl, created = ServiceSlot.objects.get_or_create(name="Attendance Project", service=serv, worker_group=wg)
-    trainee1 = Trainee.objects.get(lastname="Salamanca")
-    assign, created = Assignment.objects.get_or_create(week_schedule=ws, service=serv, service_slot=sl)
-    assign.workers.add(trainee1.worker)
-    assign.save()
-
-    serv2, created = Service.objects.get_or_create(
-        name="Meal Ushering", code="MU", category=cat, designated=True, weekday=5, start=time(12, 30), end=time(16)
-    )
-    serv2.schedule.add(sched)
-    serv2.save()
-    sl2, created = ServiceSlot.objects.get_or_create(name="Meal Ushering", service=serv2, worker_group=wg)
-    trainee2 = Trainee.objects.get(firstname="Bill")
-    assign2, created = Assignment.objects.get_or_create(week_schedule=ws, service=serv2, service_slot=sl2)
-    assign2.workers.add(trainee2.worker)
-    assign2.save()
 
   def _create_attendance(self):
     workers = Worker.objects.filter(trainee__is_active=True)
-    current_term = Term.curren_term()
+    current_term = Term.current_term()
     week_range = range(0, current_term.term_week_of_date(date.today()))
     for worker in workers:
       services = worker.designated.all()
@@ -75,11 +45,11 @@ class Command(BaseCommand):
     return ret
 
   def handle(self, *args, **options):
-    print('* Deleting existing designated service data...')
-    ServiceRoll.objects.all().delete()
-    ServiceAttendance.objects.all().delete()
-    print('* Populating designated services...')
-    self._create_services()
+    #print('* Deleting existing designated service data...')
+    #ServiceRoll.objects.all().delete()
+    #ServiceAttendance.objects.all().delete()
+    #print('* Populating designated services...')
+    self._create_attendance()
 
 
 def get_next_tuesday():
