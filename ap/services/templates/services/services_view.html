@@ -119,6 +119,7 @@ Service Scheduling
     <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Services</a></li>
     <li role="presentation"><a href="#reports" aria-controls="review" role="tab" data-toggle="tab">Print-outs</a></li>
     <li role="presentation"><a href="#history" aria-controls="review" role="tab" data-toggle="tab">History</a></li>
+    <li role="presentation"><a href="#semi-annual" aria-controls="review" role="tab" data-toggle="tab">Semi-Annual</a></li>    
   </ul>
 {% endblock %}
 
@@ -255,7 +256,6 @@ Service Scheduling
       <div class="col-xs-6 pull-left" style="width: 318px;">
         <a href="{% url 'admin:services_worker_changelist' %}" class="btn btn-default">Edit Workers</a>
       </div>
-
       <div class="pull-right">
       <div class="btn-group">
         <a href="#" class="btn btn-default" readonly>Global Services Needed: </a>
@@ -536,6 +536,40 @@ Service Scheduling
   </div>
   <!-- End History Tab -->
 
+  <!-- Semi-Annual Tab -->  
+  <div role="tabpanel" class="tab-pane" id="semi-annual">
+    <h1>Mid-Term -- New Term Helper</h1>
+    <label class="col-md-2" for="textinput">Import File:</label>
+    <div class="col-md-4">
+      {% with stryear=year|stringformat:"s" %}
+      {% with termname=season|add:"_"|add:stryear|safe %}
+        <input id="csvFile" name="csvFile" type="file" placeholder="Select Import File" class="form-control input-md" required="" value="">
+      {% endwith %}
+      {% endwith %}
+    </div>
+    <button type="submit" class="col-md-offset-4 col-md-2 btn btn-default">Next</button>
+    <div>
+      <h4>Instructions</h4>
+      <ul>
+        <li>This is for mid-term imports (e.g., team assignments, importing 1st term trainees, etc.)</li>
+        <li>For small changes (a trainee changes team or house), don't use this. Do it manually through Django or Custom admin pages.</li>
+        <li>Make sure are working in the right term.
+          <ul><li>If not, go through the Pre-term Import page by going back in time.</li></ul>
+        </li>
+        <li>Please make sure all your data is imported correctly (e.g., trainees, schedules, etc.)</li>
+        <li>Import file. Click next. Wait (maybe a long time). Follow instructions. Wait again. Do this until you get "IMPORT COMPLETE".</li>
+        <li>Now assign schedules
+          <ul>
+            <li>Now, assign individual schedules <a href="{% url 'schedules:admin-schedule-table' %}">here</a>.</li>
+            <li>Or assign all team schedules <a href="{% url 'schedules:assign-team-schedules' %}">here</a>.</li>
+            <li>Or clear all team schedules <a href="{% url 'schedules:clear-team-schedules' %}">here</a>.</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- End Semi-Annual Tab -->
 <script>
   var worker_update_url = "/api/update-workers/";
   var slots_update_url = "/api/update-workloads/";
