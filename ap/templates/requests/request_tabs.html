@@ -12,23 +12,12 @@
   $(document).ready(() => {
     $(".select-fk").select2({width: '100%'});
 
-	  $("#id_request_table").DataTable({
-      info: false,
-      paging: true,
-      autoWidth: true,
-      order: [[ 1, "desc" ]],
-      lengthMenu: [[25, 50, 100, 200, -1], [25, 50, 100, 200, "All"]],
-      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
-      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
-      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-      columnDefs: [
-        {
-          "targets": 0,
-          "visible": false,
-          "searchable": false,
-        }
-      ]
-    });
+    if (document.location.hash) {
+	    $(".tab-pane").removeClass("active");
+	    $(".nav-tabs li").removeClass("active");
+	    $(document.location.hash).addClass("active");
+	    $('a[href="'+document.location.hash+'"]').parent().addClass("active");
+    }
   });
 </script>
 {% endblock %}
@@ -50,13 +39,13 @@
 	<h2>{{ view.model|model_verbose_name|title }}</h2>
 
   <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#maintenance-request" aria-controls="home" role="tab" data-toggle="tab">New Request</a></li>
-    <li role="presentation"><a href="#maintenance-request-history" aria-controls="profile" role="tab" data-toggle="tab">History</a></li>
+    <li role="presentation" class="active"><a href="#request-tab" aria-controls="home" role="tab" data-toggle="tab">New Request</a></li>
+    <li role="presentation"><a href="#request-history-tab" aria-controls="profile" role="tab" data-toggle="tab">History</a></li>
   </ul>
 
   <div class="tab-content">
 
-    <div id="maintenance-request" class="tab-pane active" role="tabpanel" >
+    <div id="request-tab" class="tab-pane active" role="tabpanel" >
       <div class="request-form">
         <form action="" method="post">
 	        {% csrf_token %}
@@ -76,7 +65,7 @@
       </div>
     </div>
 
-    <div id="maintenance-request-history" class="tab-pane" role="tabpanel" >
+    <div id="request-history-tab" class="tab-pane" role="tabpanel" >
       <div class="data-table-container">
 		    <table id="id_request_table" class="table table-striped table-bordered">
 		      {% block request_table %} {% endblock %}

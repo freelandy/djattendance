@@ -57,6 +57,7 @@
   <script>
     var rooms = {{ rooms|safe }};
     $(document).ready(() => {
+
       let room_elem = $('#id_room');
       room_elem.empty();
       $("#id_house").on("change", e => {
@@ -75,6 +76,24 @@
         }
       });
       $('#id_description').removeAttr("style");
+
+      $("#id_request_table").DataTable({
+        info: false,
+        paging: true,
+        autoWidth: true,
+        order: [[ 7, "desc" ]],
+        lengthMenu: [[25, 50, 100, 200, -1], [25, 50, 100, 200, "All"]],
+        dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+        '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+        '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+        columnDefs: [
+          {
+            "targets": 0,
+            "visible": false,
+            "searchable": false,
+          }
+        ]
+      });
     });
   </script>
 {% endblock %}
@@ -110,16 +129,13 @@
       <th>Status</th>
       <th>Comments</th>
       <th>Actions</th>
-      <th>Detail</th>
     </tr>
   </thead>
   <tbody>
-
-    <!-- regroup them initially? -->
     {% for request in object_list %}
       <tr>
         <td>
-          {% if request.urgent %}*{% endif %}
+          {{request.urgent}}
         </td>
         <td>{{request.date_requested|date:"M d"}}</td>
         <td>
@@ -136,7 +152,6 @@
         <td>{{request.status}}</td> <!-- need to actually spell it out? -->
         <td>{{request.TA_comments}}</td>
         <td></td> <!-- TODO add action buttons -->
-        <td><a href="{{ request.get_absolute_url }}">View</a></td>
       </tr>
     {% endfor %}
 
