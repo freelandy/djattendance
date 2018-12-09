@@ -1,9 +1,7 @@
 from datetime import date, datetime, timedelta
-from accounts.models import Trainee
+
 from django.core.management.base import BaseCommand
-from services.models.assignment import Assignment
-from services.models.service import Category, Service
-from services.models.service_hours import ServiceAttendance, ServiceRoll
+from services.models.service_hours import ServiceAttendance
 from services.models.worker import Worker
 from terms.models import Term
 
@@ -42,10 +40,7 @@ class Command(BaseCommand):
     return ret
 
   def handle(self, *args, **options):
-    #print('* Deleting existing designated service data...')
-    #ServiceRoll.objects.all().delete()
-    #ServiceAttendance.objects.all().delete()
-    #print('* Populating designated services...')
+    print('* Creating service attendance objects...')
     self._create_attendance()
 
 
