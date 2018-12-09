@@ -747,5 +747,16 @@ def process_guests(request):
     csv_file = request.FILES['fileinput']
     reader = csv.DictReader(csv_file)
     for row in reader:
-      print row
+      trainee = {
+        'email': row['First'] + '.' + row['Last'] + '@ap.ftta.lan',
+        'firstname': row['First'],
+        'lastname': row['Last'],
+        'gender': row['Gender'],
+        'type': 'S',
+        'current_term': 1,
+        'is_active': True,
+        'house': House.object.objects.get(name=row['House'])
+      }
+      t = Trainee(**trainee).save()
+      w = Worker(trainee=t, health=10, services_cap=3).save()
   return redirect(reverse('services:import-guests'))
