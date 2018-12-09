@@ -1,13 +1,10 @@
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, timedelta
 from accounts.models import Trainee
 from django.core.management.base import BaseCommand
 from services.models.assignment import Assignment
-from services.models.seasonal_service_schedule import SeasonalServiceSchedule
-from services.models.service import Category, Service, ServiceSlot
+from services.models.service import Category, Service
 from services.models.service_hours import ServiceAttendance, ServiceRoll
-from services.models.week_schedule import WeekSchedule
 from services.models.worker import Worker
-from services.models.workergroup import WorkerGroup
 from terms.models import Term
 
 

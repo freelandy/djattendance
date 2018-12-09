@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
