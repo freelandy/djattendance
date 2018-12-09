@@ -15,8 +15,7 @@ from terms.models import Term
 from house_requests.models import MaintenanceRequest
 from django.core.urlresolvers import reverse_lazy
 from services.models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
-                     Service, ServiceAttendance, ServiceException, ServiceRoll,
-                     ServiceSlot, WeekSchedule, Worker)
+                      Service, ServiceSlot, WeekSchedule, Worker)
 import json
 
 from aputils.utils import WEEKDAY_CODES
@@ -45,7 +44,7 @@ def home(request):
       # Do not set as user input.
       current_week = Term.current_term().term_week_of_date(date.today())
       cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
-
+      
     except ValueError:
       cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
 
@@ -93,8 +92,9 @@ def home(request):
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
       'weekday_codes':json.dumps(WEEKDAY_CODES),
-      'service': list(service_db),
+      'service': service_db,
       'service_day': list(service_db.values()),
+      'service_name': list(service_db),
       'designated_list': designated_list,
       'weekday_codes': json.dumps(WEEKDAY_CODES)
   }

@@ -14,31 +14,31 @@
     var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
     var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
     var designatedHoursUrl = "{% url 'services:designated_service_hours' %}";
-    var service = "{{service}}";
+    var serviceNames = "{{service_name}}";
     var serviceDays = "{{service_day}}";
     var designated = "{{designated_list}}";
   
     // regex string data for display
     var regex = /(?<=\:\s)(.*?)(?=\&)/g;
-    var service_list = service.match(regex);
+    var service_list = serviceNames.match(regex);
     // console.log(service_list);
     var designated_list = designated.match(regex);
     // console.log(designated_list);
     regex = /(\d+)/g;
     var serviceDay_list = serviceDays.match(regex);
-    console.log(serviceDay_list, serviceDay_list.length);
+    console.log(service_list, serviceDay_list, serviceDay_list.length);
 
     $(document).ready(function (x) {
-      $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
+      $("#week-select option[value='{{current_week}}']").attr("selected", "selected");
   
       changetoFinalize();
       getWeeklyStatus();
   
-      $("#week_select").on('change', changeHomepageWeek);
+      $("#week-select").on('change', changeHomepageWeek);
   
-      $("#bibleTrackerButton").click(function (e) {
+      $("#bt-button").click(function (e) {
         e.preventDefault();
-        if ($('#bibleTrackerButton').val() == "Finalize") {
+        if ($('#bt-button').val() == "Finalize") {
           finalizeStatusFromHomepage();
         }
         else {
@@ -49,26 +49,25 @@
       $(".bible-selector").on('change', changetoFinalize);
   
       // for service week row
-      var numCols = $("#frontTable").find('tr')[0].cells.length;
-      console.log(numCols);
-
-      var row = document.getElementById("serviceRow");
+      var numCols = $("#front-table").find('tr')[0].cells.length;      
+      var row = document.getElementById("service-row");
       var cell;
-      var urlInsert = "<a href=\"{% url 'services:designated_service_hours' %}\">Input Hours</a>";
-      var htmlInsert = "<span class=\"glyphicon glyphicon-ok\"></span>";
-      // var index = serviceDay_list.length;
+      var urlInsert = "<a href=\"{% url 'services:designated_service_hours' %}\">Hours</a>";
+      var htmlInitInsert = "<span id=\"service-tooltip\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"";
+      var htmlLastInsert = "\" class=\"glyphicon glyphicon-ok\"></span>";
       var colIndex = 0;
       var colCount = 1;
       var serviceIndex;
+
+      console.log(htmlInitInsert, htmlLastInsert);
 
       if (colCount < 8){
         while(colCount < 8){
           cell = row.insertCell(colCount);
           
           for (serviceIndex=0, len = serviceDay_list.length; serviceIndex<len; serviceIndex++) {
-            console.log("index:", colIndex, "content:", serviceDay_list[serviceIndex]);
             if (colIndex == serviceDay_list[serviceIndex]){
-              cell.innerHTML = htmlInsert;
+              cell.innerHTML = htmlInitInsert + service_list[serviceIndex] + htmlLastInsert;
             }
           }
           colIndex++;
@@ -79,7 +78,8 @@
       // redirect to designated hours if the trainee has designated service
       cell = row.insertCell(colCount++);
       (designated_list !== null) ? cell.innerHTML = urlInsert : cell.innerHTML = "";
-  
+
+      // $(document).tooltip();
     });
   </script>
   {% endif %}
@@ -100,10 +100,10 @@
     .progress-style {
       padding-right: 0px;
     }
-   
+
   </style>
   {% endblock %} {% block content %}
-  
+
   <div class="container">
     <div class="row">
       <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
@@ -125,7 +125,7 @@
     -->
   
     {% elif user.type == 'R' or user.type == 'C' %}
-  
+
     <div class="row">
       <!-- Panels -->
       <div class="col-md-4">
@@ -152,7 +152,7 @@
             </div>
             <div class="col-sm-4">
               <!-- Pick a week of a term -->
-              <select id="week_select" class="form-control" name="week" size="0">
+              <select id="week-select" class="form-control" name="week" size="0">
                 {% for i, week in weeks %}
                 <option value="{{i}}" {% if i > current_week %} disabled {% endif %}>{{week}}</option>
                 {% endfor %}
@@ -162,7 +162,7 @@
         </div>
         <br />
   
-        <table class="table table-bordered-wkly-sum" id="frontTable" name='frontTable'>
+        <table class="table table-bordered-wkly-sum" id="front-table" name='front-table'>
           <thead>
             <tr>
               <th scope="col" class="col-md-1"></th>
@@ -173,12 +173,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr id="serviceRow">
+            <tr id="service-row">
               <th>SERVICE</th>
-                {% for d in serviceDay_list %}
-                  <td colspan="1"></td>
-                {% endfor %}
-              </tr>
+            </tr>
             <!-- COMMENT OUT: GOSPEL STATS ROW --
             <tr>
               <th>GOSPEL STATISTICS</th>
@@ -206,7 +203,7 @@
                 </td>
                 {% endfor %}
                 <td>
-                  <input class="bibleTrackerButton" type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
+                  <input class="bt-button" type="submit" name="save" Value="Save" id='bt-button'></input>
                 </td>
               </form>
             </tr>
