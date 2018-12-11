@@ -737,12 +737,12 @@ class ImportGuestsView(GroupRequiredMixin, TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(ImportGuestsView, self).get_context_data(**kwargs)
-    table_columns = [{
-      "title": "First Name", "data": "First",
-      "title": "Last Name", "data": "Last",
-      "title": "House", "data": "House",
-      "title": "Gender", "data": "Gender"
-    }]
+    table_columns = [
+      {"title": "First Name", "data": "First"},
+      {"title": "Last Name", "data": "Last"},
+      {"title": "House", "data": "House"},
+      {"title": "Gender", "data": "Gender"}
+    ]
     context['page_title'] = "Import Guest Workers"
     context['columns'] = json.dumps(table_columns)
     return context
@@ -762,8 +762,9 @@ def process_guests(request):
         'type': 'S',
         'current_term': 1,
         'is_active': True,
-        'house': House.object.objects.get(name=row['House'])
+        'house': House.objects.get(name=row['House'])
       }
-      t = Trainee(**trainee).save()
-      w = Worker(trainee=t, health=10, services_cap=3).save()
+      t, created = Trainee.objects.get_or_create(**trainee)
+      if created:
+        Worker.objects.get_or_create(trainee=t, health=10, services_cap=2)
   return redirect(reverse('services:import-guests'))
