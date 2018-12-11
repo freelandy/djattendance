@@ -6,7 +6,7 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.9/jquery.csv.js"></script>
+<script src="{% static 'services/js/jquery.csv.min.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     let cols = {{columns|safe}};
