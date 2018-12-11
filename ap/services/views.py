@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import F, Q, Count
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
@@ -745,6 +745,7 @@ class ImportGuestsView(GroupRequiredMixin, TemplateView):
     ]
     context['page_title'] = "Import Guest Workers"
     context['columns'] = json.dumps(table_columns)
+    context['workers'] = Worker.objects.filter(trainee__type='S')
     return context
 
 
@@ -768,3 +769,12 @@ def process_guests(request):
       if created:
         Worker.objects.get_or_create(trainee=t, health=10, services_cap=2)
   return redirect(reverse('services:import-guests'))
+
+
+@group_required(['training_assistant', 'service_schedulers'])
+def deactivate_guest(request, pk):
+  if request.method == "POST" and request.is_ajax():
+    w = Worker.objects.get(pk=pk)
+    w.trainee.delete()
+    return JsonResponse({'success': True})
+  return JsonResponse({'success': False})
