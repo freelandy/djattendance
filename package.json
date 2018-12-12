@@ -32,6 +32,7 @@
     "datatables.net-select": "^1.2.2",
     "datatables.net-select-bs": "^1.2.2",
     "date-fns": "^1.28.3",
+    "deep-extend": "^0.6.0",
     "devbridge-autocomplete": "^1.4.1",
     "dropzone": "^4.3.0",
     "expose-loader": "^0.7.5",
@@ -40,17 +41,21 @@
     "font-awesome": "^4.6.1",
     "fullcalendar": "^3.9.0",
     "imports-loader": "^0.7.1",
+    "install": "^0.12.2",
     "jquery": "^3.2.1",
     "jquery-datetimepicker": "^2.5.20",
     "jquery-seat-charts": "git+https://git@github.com/billyeh/jQuery-Seat-Charts.git",
     "jquery-ui": "^1.12.1",
     "jquery.shorten": "^1.0.0",
+    "lodash": "^4.17.11",
     "mediaelement": "^4.2.9",
     "mediaelement-plugins": "^2.3.0",
+    "mini-css-extract-plugin": "^0.5.0",
     "modernizr": "^3.6.0",
     "moment": "^2.22.1",
     "multiselect-two-sides": "^2.5.1",
     "node-sass": "^4.9.0",
+    "npm": "^6.5.0",
     "pdfmake": "^0.1.36",
     "prop-types": "^15.6.1",
     "react": "^15.5.4",
@@ -76,9 +81,9 @@
     "tinymce": "^4.7.3",
     "ts-loader": "^2.0.3",
     "underscore": "^1.9.0",
-    "webpack": "^2.4.1",
-    "webpack-bundle-tracker": "^0.2.0",
-    "webpack-dev-server": "^2.11.2",
+    "webpack": "^4.27.1",
+    "webpack-bundle-tracker": "^0.3.0",
+    "webpack-dev-server": "^3.1.10",
     "webpack-merge": "^4.1.0",
     "xolor": "^1.2.0",
     "yup": "0.20.0"
@@ -91,5 +96,8 @@
   },
   "engines": {
     "node": ">=0.10.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.1.2"
   }
 }
