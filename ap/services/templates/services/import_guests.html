@@ -6,7 +6,6 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
-<script src="{% static 'services/js/jquery.csv.min.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     let cols = {{columns|safe}};
