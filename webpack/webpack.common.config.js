@@ -76,8 +76,8 @@ module.exports = {
     new BundleTracker({path: __dirname, filename: './webpack-stats.json'}),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
     new webpack.ProvidePlugin({
-           $: "jquery",
-           jQuery: "jquery"
+      $: "jquery",
+      jQuery: "jquery"
     })
   ],
 
