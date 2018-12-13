@@ -358,21 +358,21 @@ class ServiceHours(UpdateView):
   template_name = 'services/service_hours.html'
   form_class = ServiceAttendanceForm
   service = None
-  designated_assignments = None
+  w_designated_services = None
   service_id = 0  # from ajax
   week = 0  # from ajax
 
   def get_object(self, queryset=None):
     term = Term.current_term()
     worker = trainee_from_user(self.request.user).worker
-    self.designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
+    self.w_designated_services = worker.designated.all()
     self.week = self.kwargs.get('week', None)
     self.service_id = self.kwargs.get('service_id', None)
     if not self.week:
       self.week = term.term_week_of_date(datetime.now().date())
 
     if not self.service_id:
-      self.service_id = self.designated_assignments.first().service.id
+      self.service_id = self.w_designated_services.first().id
 
     self.service = Service.objects.get(id=self.service_id)
 

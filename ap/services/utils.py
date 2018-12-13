@@ -431,8 +431,8 @@ SERVICE_CHECKS = [
 def has_designated_service(user):
   if is_trainee(user):
     worker = trainee_from_user(user).worker
-    designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
-    if designated_assignments.exists():
+    w_designated_services = worker.designated.all()
+    if w_designated_services.exists():
       return True
 
   return None
