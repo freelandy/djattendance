@@ -7,14 +7,13 @@ var MiniCssExtractPlugin = require("mini-css-extract-plugin")
 var commonConfig = require('./webpack.common.config')
 
 var prodConfig = {
+  mode: 'production',
   module: {
     rules: [
       {
         test:  /\.(sa|sc|c)ss$/,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-          },
+          MiniCssExtractPlugin.loader,
           "css-loader",
           "sass-loader"
         ]
@@ -26,9 +25,6 @@ var prodConfig = {
     new webpack.LoaderOptionsPlugin({
       minimize: true,
       debug: false
-    }),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
     }),
     new MiniCssExtractPlugin({
       filename: '[name].css'
