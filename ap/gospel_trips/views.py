@@ -248,9 +248,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
       s_coords = destination_qs.values_list('stat_coords', flat=True)
 
     destination_names = destination_qs.values('name')
-    trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
-    get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))
-    get_these_trainees = get_these_trainees.filter(id__in=gospel_trip.get_submitted_trainees())
+    get_these_trainees = Trainee.objects.filter(Q(id__in=gospel_trip.get_submitted_trainees()))
     for t in get_these_trainees:
       ID = t.id
       entry = {
