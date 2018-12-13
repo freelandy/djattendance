@@ -5,6 +5,7 @@ from accounts.models import Trainee
 from attendance.models import Roll
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
+from aputils.utils import timeit_inline
 
 from .models import Classnotes
 
@@ -15,9 +16,14 @@ def assign_classnotes(week=None):
   end = term.end
   if week is not None:
     end = term.enddate_of_week(week)
+  tctime = timeit_inline("total classnotes calculation time")
+  tctime.start()
   for trainee in Trainee.objects.all().iterator():
     update_classnotes_list(trainee)
+    print trainee
     assign_individual_classnotes(trainee, start, end)
+
+  tctime.end()
 
 
 def assign_individual_classnotes(trainee, start, end):
@@ -30,8 +36,11 @@ def assign_individual_classnotes(trainee, start, end):
   '''
   # look at trainee's absences (for class event).
   # Increment absence_counts based on classname (HStore)
+
+  grtime = timeit_inline("get rolls time")
+  grtime.start()
   regular_absence_counts = {}
-  rolls = trainee.rolls.all().filter(date__gte=start, date__lte=end, status='A', event__type='C').order_by('date').select_related('event')
+  rolls = trainee.rolls.all().filter(date__gte=start, date__lte=end, status='A', event__type='C').order_by('date').select_related('event').prefetch_related('leaveslips', 'event__classnotes_set')
   if trainee.self_attendance:
     rolls = rolls.filter(submitted_by=trainee)
   else:
@@ -42,22 +51,34 @@ def assign_individual_classnotes(trainee, start, end):
   # Monday Revival Meeting
   rolls = rolls.exclude(event__name='Monday Revival Meeting')
   rolls = rolls.exclude(event__name='Morning Revival Fellowship')
+  grtime.end()
 
+  irtime = timeit_inline("iterate rolls time")
+  irtime.start()
   for roll in rolls.iterator():
     classname = roll.event.name
+    gltime = timeit_inline("get leaveslip time")
+    gltime.start()
     leavesliplist = list(get_leaveslip(trainee, roll))
+    gltime.end()
     if len(leavesliplist) > 0:
       for leaveslip in leavesliplist:
         # Special: Wedding, Graduation, Funeral, Interview.
         if leaveslip.type in ['INTVW', 'GRAD', 'WED', 'FUNRL']:
+          gctime = timeit_inline("generate classnotes time")
+          gctime.start()
           generate_classnotes(trainee, roll, 'S')
+          gctime.end()
 
         # Regular: Sickness, Unexcused, Others, Fellowship, Notif only
         if leaveslip.type in ['OTHER', 'SICK', 'FWSHP', 'SPECL', 'NOTIF']:
           if classname in regular_absence_counts:
             regular_absence_counts[classname] += 1
             if (regular_absence_counts[classname]) > 2:
+              gctime = timeit_inline("generate classnotes time")
+              gctime.start()
               generate_classnotes(trainee, roll, 'R')
+              gctime.end()
           else:
             regular_absence_counts[classname] = 1
         # Missed classes with conference or service leave slips results in no class notes
@@ -66,9 +87,13 @@ def assign_individual_classnotes(trainee, start, end):
       if classname in regular_absence_counts:
         regular_absence_counts[classname] += 1
         if (regular_absence_counts[classname]) > 2:
+          gctime = timeit_inline("generate classnotes time")
+          gctime.start()
           generate_classnotes(trainee, roll, 'R')
+          gctime.end()
       else:
         regular_absence_counts[classname] = 1
+  irtime.end()
 
 
 # Delete classnotes that are no longer needed based on changes
