@@ -17,7 +17,7 @@ $(document).ready(() => {
 
 $(function() {
   $("#classnotes_ta_list").on('change', function() {
-    $(this).closest("form").submit();
+    $("#classnotes_ta_filter").submit();
   });
 });
 
@@ -32,7 +32,7 @@ $(function() {
   </div>
   <br>
   <div>
-    <form action="" method="get">
+    <form id="classnotes_ta_filter" action="" method="get">
       View class notes for:
       <select id="classnotes_ta_list" name="classnotes_ta_list">
         <option {% if selected_ta == None %}selected="selected"{% endif %} value="-1">All TA's</option>
