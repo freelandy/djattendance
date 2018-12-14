@@ -252,8 +252,11 @@ Service Scheduling
       <div class="pull-left">
         Workers:
       </div>
-      <div class="col-xs-6 pull-left" style="width: 318px;">
+      <div class="col-xs-6 pull-left" style="width: 140px;">
         <a href="{% url 'admin:services_worker_changelist' %}" class="btn btn-default">Edit Workers</a>
+      </div>
+      <div class="col-xs-6 pull-left" style="width: 318px;">
+        <a href="{% url 'services:import-guests' %}" class="btn btn-default" target="_blank" style="color:red;">Import Guests</a>
       </div>
 
       <div class="pull-right">

@@ -1,3 +1,4 @@
+import csv
 import json
 from collections import defaultdict
 from datetime import date, datetime
@@ -11,7 +12,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import F, Q, Count
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
@@ -750,3 +751,52 @@ class DesignatedServiceAdderViewer(FormView):
     context = super(DesignatedServiceAdderViewer, self).get_context_data(**kwargs)
     context['page_title'] = "Add Trainees to Designated Service"
     return context
+
+
+class ImportGuestsView(GroupRequiredMixin, TemplateView):
+  template_name = 'services/import_guests.html'
+  group_required = ['training_assistant', 'service_schedulers']
+
+  def get_context_data(self, **kwargs):
+    context = super(ImportGuestsView, self).get_context_data(**kwargs)
+    table_columns = [
+      {"title": "First Name", "data": "First"},
+      {"title": "Last Name", "data": "Last"},
+      {"title": "House", "data": "House"},
+      {"title": "Gender", "data": "Gender"}
+    ]
+    context['page_title'] = "Import Guest Workers"
+    context['columns'] = json.dumps(table_columns)
+    context['workers'] = Worker.objects.filter(trainee__type='S')
+    return context
+
+
+@group_required(['training_assistant', 'service_schedulers'])
+def process_guests(request):
+  if request.method == "POST":
+    csv_file = request.FILES['fileinput']
+    reader = csv.DictReader(csv_file)
+    for row in reader:
+      trainee = {
+        'email': row['First'] + '.' + row['Last'] + '@ap.ftta.lan',
+        'firstname': row['First'],
+        'lastname': row['Last'],
+        'gender': row['Gender'],
+        'type': 'S',
+        'current_term': 1,
+        'is_active': True,
+        'house': House.objects.get(name=row['House'])
+      }
+      t, created = Trainee.objects.get_or_create(**trainee)
+      if created:
+        Worker.objects.get_or_create(trainee=t, health=10, services_cap=2)
+  return redirect(reverse('services:import-guests'))
+
+
+@group_required(['training_assistant', 'service_schedulers'])
+def deactivate_guest(request, pk):
+  if request.method == "POST" and request.is_ajax():
+    w = Worker.objects.get(pk=pk)
+    w.trainee.delete()
+    return JsonResponse({'success': True})
+  return JsonResponse({'success': False})
