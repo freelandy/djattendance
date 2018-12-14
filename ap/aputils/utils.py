@@ -53,8 +53,12 @@ class OverwriteStorage(FileSystemStorage):
     return super(OverwriteStorage, self).get_available_name(name, max_length)
 
 
-def modify_model_status(model, url):
-  @group_required(['training_assistant'], raise_exception=True)
+def modify_model_status(model, url, groups=None):
+  if groups is None:
+    groups = []
+  groups.append('training_assistant')
+
+  @group_required(groups, raise_exception=True)
   def modify_status(request, status, id, message_func=None):
     obj = get_object_or_404(model, pk=id)
     obj.status = status
