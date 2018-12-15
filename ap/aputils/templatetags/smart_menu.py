@@ -115,7 +115,7 @@ def generate_menu(context):
           SubMenuItem(name='Designated Services Hours', url='services:service_hours_ta_view'),
           SubMenuItem(name='Gospel Statistics', url='gospel_statistics:ta-gospel-statistics-view'),
           # SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
-          # SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
+          SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
       trainee_only=[
           SubMenuItem(name='View Read Announcements', url='announcements:announcements-read'),
