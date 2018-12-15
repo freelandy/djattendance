@@ -143,7 +143,7 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
     oset = Outline.objects.filter(grad_admin__term=term, trainee__in=speaking_trainees)
     ctx['speaking_stat'] = {
       'count': speaking_trainees.count(),
-      'responses': len(filter(lambda o: o.speaking or o.speaking, oset))
+      'responses': len([o for o in oset if o.speaking])
     }
     # xb form
     xba = XBAdmin.objects.filter(term=term)
