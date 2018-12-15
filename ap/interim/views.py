@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
-from dateutil import parser
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 from interim.forms import (InterimIntentionsAdminForm, InterimIntentionsForm,
@@ -46,7 +45,12 @@ class InterimIntentionsView(UpdateView):
     itins = []
 
     for index in range(len(start_list)):
-      itins.append(InterimItineraryForm(data={'start':start_list[index], 'end':end_list[index], 'comments':commments_list[index], 'interim_intentions': interim_intentions}))
+      itins.append(InterimItineraryForm(data={
+        'start': start_list[index],
+        'end': end_list[index],
+        'comments': commments_list[index],
+        'interim_intentions': interim_intentions})
+      )
     if all(f.is_valid() for f in itins):
       InterimItinerary.objects.filter(interim_intentions=interim_intentions).delete()
       for itin in itins:
@@ -54,7 +58,6 @@ class InterimIntentionsView(UpdateView):
         itobj.interim_intentions = interim_intentions
         itobj.save()
     return itins
-
 
   def get_context_data(self, **kwargs):
     ctx = super(InterimIntentionsView, self).get_context_data(**kwargs)
@@ -178,7 +181,7 @@ class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
     ctx['trainees'] = Trainee.objects.values('firstname', 'lastname', 'id')
 
     for t in ctx['trainees']:
-      t['name'] = unicode(t['firstname'] + ' ' + t['lastname'])
+      t['name'] = str(t['firstname'] + ' ' + t['lastname'])
       t['intention'] = InterimIntentions.objects.filter(trainee__id=t['id'], admin__term=term).first()
 
     ctx['page_title'] = 'Interim Calendar Report'
