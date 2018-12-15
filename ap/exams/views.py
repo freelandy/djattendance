@@ -1,14 +1,11 @@
-import cStringIO as StringIO
 import json
 from datetime import datetime
 
-import xhtml2pdf.pisa as pisa
 from accounts.models import Trainee
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.utils import render_to_pdf
 from braces.views import GroupRequiredMixin, LoginRequiredMixin
-from cgi import escape
 from classes.models import Class
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -250,10 +247,10 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
         session, created = Session.objects.update_or_create(
           exam=exam,
           trainee=trainee)
-        session.is_submitted_online=False
-        session.time_finalized=datetime.now()
-        session.is_graded=True
-        session.grade=float(grades[index])
+        session.is_submitted_online = False
+        session.time_finalized = datetime.now()
+        session.is_graded = True
+        session.grade = float(grades[index])
         session.save()
 
       grades2 = P.getlist('session-id-grade')
