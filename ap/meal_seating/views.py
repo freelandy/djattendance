@@ -1,15 +1,16 @@
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponse
-from django.contrib import messages
-from meal_seating.models import Table, TraineeExclusion
-from accounts.models import Trainee
 from datetime import date, timedelta
-from django.views import generic
-from .serializers import TableSerializer
 
+from accounts.models import Trainee
+from django.contrib import messages
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.views import generic
+from django.views.decorators.csrf import csrf_protect
+from meal_seating.models import Table, TraineeExclusion
 from rest_framework import viewsets
 from rest_framework.renderers import JSONRenderer
+
+from .serializers import TableSerializer
 
 
 @csrf_protect
@@ -39,13 +40,14 @@ def seattables(request):
   enddate = request.POST['enddate']
 
   trainees = Trainee.objects.all().filter(gender=genderchoice).order_by(filterchoice).exclude(id__in=get_exclude_list())
-  #date_of_birth will sort by year by default, so the following code will make it order by month,day
+  # date_of_birth will sort by year by default, so the following code will make it order by month,day
   if filterchoice == 'date_of_birth':
-	trainees = Trainee.objects.all().filter(gender=genderchoice).extra(select={
+    trainees = Trainee.objects.all().filter(gender=genderchoice).extra(
+      select={
         'birth_date_month': 'EXTRACT(MONTH FROM date_of_birth)',
         'birth_date_day': 'EXTRACT(DAY FROM date_of_birth)'
-    },
-    order_by=['birth_date_month','birth_date_day']).exclude(id__in=get_exclude_list())
+      },
+      order_by=['birth_date_month', 'birth_date_day']).exclude(id__in=get_exclude_list())
   seating_list = seatinglist(trainees, genderchoice)
   if seating_list is None:
     messages.error(request, 'Not enough seats available!')
