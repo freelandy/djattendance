@@ -99,9 +99,6 @@ def seatinglist(genderlist, gender):
         meal_seating["last_name"] = trainee.lastname
         meal_seating["table"] = tables[tablenum]
         mealRows.append(meal_seating)
-        if (len(mealRows) % MAX_ROW_PER_COL) == 0:
-          rowElementPartition = len(mealRows) // MAX_ROW_PER_COL
-          mealCols.append(mealRows[MAX_ROW_PER_COL * (rowElementPartition - 1):MAX_ROW_PER_COL * rowElementPartition])
         traineenum += 1
       sortedMealRows = sorted(mealRows, key=lambda k: (k["last_name"], k["first_name"]))
       # numCols is how many columns resulting table will have
