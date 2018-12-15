@@ -102,7 +102,7 @@ class Exam(models.Model):
 
 
 class Section(models.Model):
-  exam = models.ForeignKey(Exam, related_name='sections', null=False, on_delete=models.SET_NULL)
+  exam = models.ForeignKey(Exam, related_name='sections', null=False, on_delete=models.CASCADE)
   SECTION_CHOICES = (('MC', 'Multiple Choice'),
                      ('E', 'Essay'),
                      ('M', 'Matching'),
@@ -187,8 +187,8 @@ class Section(models.Model):
 
 class Session(models.Model):
 
-  trainee = models.ForeignKey(Trainee, related_name='exam_sessions', null=False, on_delete=models.SET_NULL)
-  exam = models.ForeignKey(Exam, related_name='sessions', null=False, on_delete=models.SET_NULL)
+  trainee = models.ForeignKey(Trainee, related_name='exam_sessions', null=False, on_delete=models.CASCADE)
+  exam = models.ForeignKey(Exam, related_name='sessions', null=False, on_delete=models.CASCADE)
 
   is_submitted_online = models.BooleanField(default=True)
   is_graded = models.BooleanField(default=False)
@@ -211,8 +211,8 @@ class Session(models.Model):
 
 
 class Responses(models.Model):
-  session = models.ForeignKey(Session, related_name='responses', null=False, on_delete=models.SET_NULL)
-  section = models.ForeignKey(Section, related_name='responses', null=False, on_delete=models.SET_NULL)
+  session = models.ForeignKey(Session, related_name='responses', null=False, on_delete=models.CASCADE)
+  section = models.ForeignKey(Section, related_name='responses', null=False, on_delete=models.CASCADE)
 
   responses = HStoreField(null=True)
   score = models.DecimalField(max_digits=5, decimal_places=2)
@@ -225,8 +225,8 @@ class Responses(models.Model):
 
 # Makeup are deleted upon creation of session.
 class Makeup(models.Model):
-  trainee = models.ForeignKey(Trainee, related_name='exam_makeup', null=False, on_delete=models.SET_NULL)
-  exam = models.ForeignKey(Exam, null=False, on_delete=models.SET_NULL)
+  trainee = models.ForeignKey(Trainee, related_name='exam_makeup', null=False, on_delete=models.CASCADE)
+  exam = models.ForeignKey(Exam, null=False, on_delete=models.CASCADE)
   time_opened = models.DateTimeField(auto_now_add=True)
 
   class Meta:
