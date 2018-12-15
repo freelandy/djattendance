@@ -53,7 +53,7 @@
       var row = document.getElementById("service-row");
       var cell;
       var urlInsert = "<a href=\"{% url 'services:designated_service_hours' %}\">Hours</a>";
-      var htmlInitInsert = "<span id=\"service-tooltip\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"";
+      var htmlInitInsert = "<span id=\"service-tooltip\" data-toggle=\"tooltip\" title=\"";
       var htmlLastInsert = "\" class=\"glyphicon glyphicon-ok\"></span>";
       var colIndex = 0;
       var colCount = 1;
@@ -212,7 +212,10 @@
                 <div class="row">
                   <div class="col-10 col-sm-6 col-md-10 progress-style">
                     <div class="homepage-progress">
-                      <a href="{% url 'bible_tracker:index' %}">
+                      <a class="bt-update" href="{% if user.current_term == 1 or user.current_term == 2%}
+                        {% url 'bible_tracker:index' %}#first-year-bible-reading
+                        {% elif user.current_term == 3 or user.current_term == 4 %}
+                        {% url 'bible_tracker:index' %}#second-year-bible-reading {% endif %}">
                         <div class="homepage-progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100"
                           style="width: {{bible_reading_progress}}%">
                         </div>
@@ -225,7 +228,7 @@
                 </div>
               </td>
               <td>
-                <a class="bibleTrackerUpdate" href="{% if user.current_term == 1 or user.current_term == 2%}
+                <a class="bt-update" href="{% if user.current_term == 1 or user.current_term == 2%}
                 {% url 'bible_tracker:index' %}#first-year-bible-reading
                 {% elif user.current_term == 3 or user.current_term == 4 %}
                 {% url 'bible_tracker:index' %}#second-year-bible-reading {% endif %}">Update</a>

@@ -14,36 +14,35 @@ $tooltip-font-color:                     $blue !default;
    * --------------------------------------------------
    */
 
-//   .tooltip {
-//     @at-root &-inner {
-//         color: $tooltip-font-color;
-//         background-color: $tooltip-background-color;
-//     }
-//     &.top &-arrow,
-//     &.top-left &-arrow,
-//     &.top-right &-arrow {
-//         border-top-color: $tooltip-background-color;
-//     }
-//     &.right &-arrow {
-//         border-right-color: $tooltip-background-color;
-//     }
-//     &.left &-arrow {
-//         border-left-color: $tooltip-background-color;
-//     }
-//     &.bottom &-arrow,
-//     &.bottom-left &-arrow, 
-//     &.bottom-right &-arrow {
-//         border-bottom-color: $tooltip-background-color;
-//     }
-//   }
-
-    .tooltip .service-tooltip{
+  .tooltip {
+    @at-root &-inner {
+        color: $tooltip-font-color;
+        background-color: $tooltip-background-color;
+    }
+    &.top &-arrow,
+    &.top-left &-arrow,
+    &.top-right &-arrow {
+        border-top-color: $tooltip-background-color;
+    }
+    &.right &-arrow {
+        border-right-color: $tooltip-background-color;
+    }
+    &.left &-arrow {
+        border-left-color: $tooltip-background-color;
+    }
+    &.bottom &-arrow,
+    &.bottom-left &-arrow, 
+    &.bottom-right &-arrow {
+        border-bottom-color: $tooltip-background-color;
+    }
+  }
+    .service-tooltip{
         position: relative;
         display: inline-block;
         border-bottom: 1px dotted black;
     }
 
-    .tooltip .service-tooltip {
+    .service-tooltip {
         visibility: hidden;
         width: 120px;
         background-color: black;
@@ -64,7 +63,7 @@ $tooltip-font-color:                     $blue !default;
 
     .tooltip:hover .service-tooltip {
         visibility: visible;
-        opacity: 1;
+        opacity: 0;
     }
 }
 
