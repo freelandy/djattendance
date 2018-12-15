@@ -102,7 +102,7 @@ class Exam(models.Model):
 
 
 class Section(models.Model):
-  exam = models.ForeignKey(Exam, related_name='sections', null=False)
+  exam = models.ForeignKey(Exam, related_name='sections', null=False, on_delete=models.SET_NULL)
   SECTION_CHOICES = (('MC', 'Multiple Choice'),
                      ('E', 'Essay'),
                      ('M', 'Matching'),
@@ -187,8 +187,8 @@ class Section(models.Model):
 
 class Session(models.Model):
 
-  trainee = models.ForeignKey(Trainee, related_name='exam_sessions', null=False)
-  exam = models.ForeignKey(Exam, related_name='sessions', null=False)
+  trainee = models.ForeignKey(Trainee, related_name='exam_sessions', null=False, on_delete=models.SET_NULL)
+  exam = models.ForeignKey(Exam, related_name='sessions', null=False, on_delete=models.SET_NULL)
 
   is_submitted_online = models.BooleanField(default=True)
   is_graded = models.BooleanField(default=False)
@@ -211,8 +211,8 @@ class Session(models.Model):
 
 
 class Responses(models.Model):
-  session = models.ForeignKey(Session, related_name='responses', null=False)
-  section = models.ForeignKey(Section, related_name='responses', null=False)
+  session = models.ForeignKey(Session, related_name='responses', null=False, on_delete=models.SET_NULL)
+  section = models.ForeignKey(Section, related_name='responses', null=False, on_delete=models.SET_NULL)
 
   responses = HStoreField(null=True)
   score = models.DecimalField(max_digits=5, decimal_places=2)
@@ -225,8 +225,8 @@ class Responses(models.Model):
 
 # Makeup are deleted upon creation of session.
 class Makeup(models.Model):
-  trainee = models.ForeignKey(Trainee, related_name='exam_makeup', null=False)
-  exam = models.ForeignKey(Exam, null=False)
+  trainee = models.ForeignKey(Trainee, related_name='exam_makeup', null=False, on_delete=models.SET_NULL)
+  exam = models.ForeignKey(Exam, null=False, on_delete=models.SET_NULL)
   time_opened = models.DateTimeField(auto_now_add=True)
 
   class Meta:
