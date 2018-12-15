@@ -82,14 +82,14 @@ def seatinglist(genderlist, gender):
     for x in Table.objects.all().filter(gender=gender).values("capacity"):
       totalcapacity += x["capacity"]
     if (traineecount > totalcapacity):
-      print "cannot seat ", traineecount, " trainees. Current capacity is: ", totalcapacity
+      print("cannot seat ", traineecount, " trainees. Current capacity is: ", totalcapacity)
       return None
     else:
       # Make columns have max 55 trainees.
       # rows will contain meal_seating.
       mealCols = []
       mealRows = []
-      maxRowPerCol = 55
+      MAX_ROW_PER_COL = 55
       for trainee in genderlist:
         meal_seating = {}
         if traineenum == tables[tablenum].capacity:
@@ -99,19 +99,19 @@ def seatinglist(genderlist, gender):
         meal_seating["last_name"] = trainee.lastname
         meal_seating["table"] = tables[tablenum]
         mealRows.append(meal_seating)
-        if (len(mealRows) % maxRowPerCol) == 0:
-          rowElementPartition = len(mealRows) // maxRowPerCol
-          mealCols.append(mealRows[maxRowPerCol * (rowElementPartition - 1):maxRowPerCol * rowElementPartition])
+        if (len(mealRows) % MAX_ROW_PER_COL) == 0:
+          rowElementPartition = len(mealRows) // MAX_ROW_PER_COL
+          mealCols.append(mealRows[MAX_ROW_PER_COL * (rowElementPartition - 1):MAX_ROW_PER_COL * rowElementPartition])
         traineenum += 1
-      sortedMealRows = sorted(mealRows, key=lambda k: (k["last_name"],k["first_name"]))
-      #numCols is how many columns resulting table will have
-      numCols = traineecount/maxRowPerCol + 1
-      #the rare case that maxRowPerCol divides traineecount
-      if (traineecount % maxRowPerCol) == 0:
+      sortedMealRows = sorted(mealRows, key=lambda k: (k["last_name"], k["first_name"]))
+      # numCols is how many columns resulting table will have
+      numCols = traineecount // MAX_ROW_PER_COL + 1
+      # the rare case that maxRowPerCol divides traineecount
+      if (traineecount % MAX_ROW_PER_COL) == 0:
           numCols -= 1
       colNum = 1
-      while colNum <= numCols :
-          mealCols.append(sortedMealRows[maxRowPerCol * (colNum - 1):maxRowPerCol * colNum])
+      while colNum <= numCols:
+          mealCols.append(sortedMealRows[MAX_ROW_PER_COL * (colNum - 1):MAX_ROW_PER_COL * colNum])
           colNum += 1
       return mealCols
 
