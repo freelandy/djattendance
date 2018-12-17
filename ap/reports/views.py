@@ -44,7 +44,7 @@ class AttendanceReport(GroupRequiredMixin, TemplateView):
     # below is used to resolve duplicate city names for localities, eg: Richmond, Canada vs Richmond, VA
     # using foreign key links from the trainees ensures that we don't pull localities or teams that don't have any trainees
     context = self.get_context_data()
-    trainees = Trainee.objects.filter(is_active=True)
+    trainees = Trainee.objects.exclude(type="S")
     context['trainee_ids'] = list(trainees.order_by('lastname').values_list('pk', flat=True))
     locality_ids = set(trainees.values_list('locality__id', flat=True).distinct())
     localities = [{'id': loc_id, 'name': Locality.objects.get(pk=loc_id).city.name} for loc_id in locality_ids]
