@@ -36,13 +36,10 @@ $tooltip-font-color:                     $blue !default;
         border-bottom-color: $tooltip-background-color;
     }
   }
-    .service-tooltip{
+    .service-row{
         position: relative;
         display: inline-block;
         border-bottom: 1px dotted black;
-    }
-
-    .service-tooltip {
         visibility: hidden;
         width: 120px;
         background-color: black;
@@ -61,7 +58,7 @@ $tooltip-font-color:                     $blue !default;
         transition: opacity 1s;
     }
 
-    .tooltip:hover .service-tooltip {
+    .service-row:hover {
         visibility: visible;
         opacity: 0;
     }
