@@ -77,6 +77,8 @@ class RoomReservationSubmit(CreateView):
 
 
 class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
+  form_class = RoomReservationForm
+
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationUpdate, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Edit Reservation'

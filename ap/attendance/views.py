@@ -415,12 +415,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
             d = ev.start_datetime.date()
             # Add roll if roll exists for trainee
             if trainee in roll_dict and (ev, d) in roll_dict[trainee]:
-              # if trainee is on self attendance (trainee.self_attendance=True),
-              # only display rolls not submitted by the trainee and modify rolls that are not submitted by the trainee.
-              if trainee.self_attendance and (trainee == roll_dict[trainee][(ev, d)].submitted_by):
-                continue
-              else:
-                ev.roll = roll_dict[trainee][(ev, d)]
+              ev.roll = roll_dict[trainee][(ev, d)]
             evt_list[i] = ev
 
     ctx['event_type'] = event_type
