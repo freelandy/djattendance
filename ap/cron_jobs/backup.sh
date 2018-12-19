@@ -25,6 +25,10 @@ now=$(date +"%m_%d_%Y_%H%M%S")
 git commit -am "Backup Database. Date: $now"
 git push dropbox database
 
+# upload to dropbox (uses dropbox uploader)
+# https://github.com/andreafabrizi/Dropbox-Uploader
+./dropbox_uploader.sh upload ap_data.sql /db_backups/
+
 #Backup Scipts
 cd $SCRIPTBACK
 if [ -f $lockfile ] ; then
