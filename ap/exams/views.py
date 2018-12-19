@@ -238,7 +238,7 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
         if grades[index] == "":
           continue
 
-        if not grades[index].isdigit() or not is_float(grades[index]):
+        if not grades[index].isdigit() and not is_float(grades[index]):
           messages.add_message(request, messages.ERROR, 'Invalid input for trainee ' + str(trainee))
           continue
 
@@ -601,7 +601,7 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       except Section.DoesNotExist:
         is_successful = False
       resp_s['score'] = scores[index]
-      if not resp_s['score'].isdigit() or not is_float(resp_s['score']):
+      if not resp_s['score'].isdigit() and not is_float(resp_s['score']):
         messages.add_message(request, messages.ERROR, 'Invalid score')
       resp_s['comments'] = comments[index]
       index += 1
