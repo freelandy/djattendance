@@ -395,9 +395,9 @@ def save_responses(session, section, responses):
   # NEW CODE TO TAKE CARE OF BLANK ANSWERS
   for i in range(1, section.question_count + 1):
     try:
-      responses_hstore[str(i).decode('utf-8')] = json.dumps(responses[str(i)])
+      responses_hstore[str(i)] = json.dumps(responses[str(i)])
     except KeyError:
-      responses_hstore[str(i).decode('utf-8')] = json.dumps(str('').decode('utf-8'))
+      responses_hstore[str(i)] = json.dumps(str(''))
 
   responses_obj.responses = responses_hstore
   responses_obj.save()

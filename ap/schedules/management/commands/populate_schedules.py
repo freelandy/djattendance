@@ -69,9 +69,7 @@ class Command(BaseCommand):
     campus_generic.save()
 
   def handle(self, *args, **options):
-    # print("* Populating schedules...")
-    # self._create_schedule()
-    print ("* Looking through schedules... ")
-    self._check_schedules()
-    # self._check_events()
+
+    print("* Populating schedules...")
+    self._create_schedule()
     print('pulled on', datetime.now())
