@@ -72,6 +72,9 @@ function deletePair(pair_id) {
         {% for every in each.gospel_pair.trainees.all %}
           {{every}}, 
         {% endfor %}
+            <button class="btn btn-primary" onclick="deletePair({{each.gospel_pair.id}});" title="Delete gospel pair">
+              <span class="glyphicon glyphicon-trash"></span>
+            </button>
       </th>
       <td>
         {{each.tracts_distributed}}
