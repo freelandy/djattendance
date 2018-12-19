@@ -11,7 +11,7 @@ $(document).ready(function() {
 });
 function weekSelect() {
   //Week 0-20 selector
-  for (var week_num = 0; week_num < 21; week_num++){
+  for (var week_num = 0; week_num < 20; week_num++){
     var each=$('<option></option>', {'value': week_num, 'text': 'Week '+week_num});
     if (week_num == {{week}}){
       each.selected = true;
@@ -20,6 +20,8 @@ function weekSelect() {
   };
 };
 function switchStats(week) {
+  var url = "{% url 'gospel_statistics:gospel-statistics-view' %}";
+  document.location = url+week;
 };
 function deletePair(pair_id) {
   $.ajax({
@@ -45,10 +47,8 @@ function deletePair(pair_id) {
       {{team}}
     </td>
     <td>
-      <!--
       <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Week Of:</b>
       <select id="gospelWeek" onchange="switchStats(this.value)"/>
-      -->
     </td>
   </table>
 </div>

@@ -34,7 +34,7 @@ C_TERM = Term.current_term()
 
 
 def get_week():
-  for i in range(0, 21):
+  for i in range(0, 20):
     if C_TERM.startdate_of_week(i) <= date.today() \
       and C_TERM.enddate_of_week(i) >= date.today():
       return i
@@ -45,12 +45,12 @@ class GospelStatisticsView(TemplateView):
   template_name = "gospel_statistics/gospel_statistics.html"
 
   @staticmethod
-  def get_stats_list(gospel_pairs, gospel_statistics):
+  def get_stats_list(gospel_pairs, gospel_statistics, current_week):
     data = []
     for p in gospel_pairs:
       entry = dict()
       entry['gospel_pair'] = p
-      stat = gospel_statistics.filter(gospelpair=p, week=get_week())[0]
+      stat = gospel_statistics.filter(gospelpair=p, week=current_week)[0]
       for i in _attributes:
         entry[i] = eval('stat.' + i)
       data.append(entry)
@@ -119,11 +119,14 @@ class GospelStatisticsView(TemplateView):
     ctx['team'] = current_user.team
     ctx['gospel_pairs'] = GospelPair.objects.filter(team=current_user.team, term=C_TERM)
     ctx['cols'] = attributes
-    ctx['week'] = get_week()
     ctx['current'] = []
     ctx['atts'] = _attributes
+    week = get_week()
+    if 'week' in self.kwargs:
+      week = self.kwargs['week']
+    ctx['week'] = week
     # Current week stat
-    ctx['current'] = self.get_stats_list(ctx['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=ctx['gospel_pairs']))
+    ctx['current'] = self.get_stats_list(ctx['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=ctx['gospel_pairs']), week)
     # All 20 week stat
     ctx['all_stat'] = self.get_all_stats_list(ctx['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=ctx['gospel_pairs']))
     return ctx
@@ -149,7 +152,6 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     save_type = request.POST.get('save_type')
 
     ##Generate Report here
-
     ctx = {
       'page_title': 'Generate Report',
       'attributes': attributes,
@@ -163,25 +165,26 @@ class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
 
   def post(self, request, *args, **kwargs):
+    current_team = self.request.user.team
     # Retrieve the selected trainees
     list_of_trainee_id = request.POST.getlist('inputs')
     list_of_trainees = []
     for each in list_of_trainee_id:
       list_of_trainees.extend(Trainee.objects.filter(id=each))
     # Create a new empty gospel pair
-    gospelpair = GospelPair(team=ctx['team'], term=C_TERM)
+    gospelpair = GospelPair(team=current_team, term=C_TERM)
     gospelpair.save()
     # Add the trainees
     for each in list_of_trainees:
       gospelpair.trainees.add(each)
     # Check for duplicate
-    for each in GospelPair.objects.filter(team=ctx['team'], term=C_TERM):
+    for each in GospelPair.objects.filter(team=current_team, term=C_TERM):
       # #Need to add an alert
       if each.id is not gospelpair.id and set(each.trainees.all()) == set(gospelpair.trainees.all()):
         gospelpair.delete()
         return redirect(reverse('gospel_statistics:gospel-statistics-view'))
     # Create 20 week GospelStats for the new gospelpair
-    for week in range(0, 21):
+    for week in range(0, 20):
       GospelStat(gospelpair=gospelpair, week=week).save()
     return redirect(reverse('gospel_statistics:gospel-statistics-view'))
 
