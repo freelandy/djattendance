@@ -48,6 +48,19 @@
     grid-column: 1 / 2;
     grid-row: 9 / 10;
   }
+
+  td {
+    text-align: left;
+  }
+
+  .center-col {
+    text-align: center;
+  }
+
+  .datatable-buttons {
+    /*position: absolute;*/
+    /*top: 50px;*/
+  }
 </style>
 {% endblock %}
 
@@ -115,56 +128,74 @@
   {{ form.urgent }} Urgent
 {% endblock %}
 
-{% block request_table %}
-  <thead>
-    <tr>
-      <th>Urgent</th>
-      <th>Date</th>
-      <th>Location</th>
-      <th>Name</th>
-      <th>Phone</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Status</th>
-      <th>Comments</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for request in object_list %}
-      <tr>
-        <td>
-          {% if request.urgent %}*{% endif %}
-        </td>
-        <td>{{request.date_requested|date:"M d"}}</td>
-        <td>
-          {% if request.room %}
-            {{request.room}}
-          {% else %}
-            {{request.house}}
-          {% endif %}
-        </td>
-        <td>{{request.trainee_author.full_name}}</td>
-        <td>{{request.trainee_author.meta.phone}}</td>
-        <td>{{request.request_type}}</td>
-        <td>{{request.description}}</td>
-        <td>
-          {% if request.status == "P" %}
-            Pending
-          {% elif request.status == "C" %}
-            Approved
-          {% else %}
-            Marked for Fellowship
-          {% endif %}
-        </td>
-        <td>{{request.TA_comments}}</td>
-        <td></td> <!-- TODO add action buttons -->
-      </tr>
-    {% endfor %}
+{% block trainee_request_table %}
+  <div class="data-table-container">
+    <table id="id_request_table" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Urgent</th>
+          <th>Date</th>
+          <th>Location</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Comments</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for request in object_list %}
+          <tr>
+            <td class="center-col">
+              {% if request.urgent %}*{% endif %}
+            </td>
+            <td>{{request.date_requested|date:"m/d/y"}}</td>
+            <td>
+              {% if request.room %}
+                {{request.room}}
+              {% else %}
+                {{request.house}}
+              {% endif %}
+            </td>
+            <td>{{request.trainee_author.full_name}}</td>
+            <td>{{request.trainee_author.meta.phone}}</td>
+            <td class="center-col">{{request.request_type}}</td>
+            <td>{{request.description}}</td>
+            <td class="center-col">
+              {% if request.status == "P" %}
+                Pending
+              {% elif request.status == "C" %}
+                Approved
+              {% else %}
+                Marked for Fellowship
+              {% endif %}
+            </td>
+            <td>{{request.TA_comments}}</td>
+            <td></td> <!-- TODO add action buttons -->
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
 
-    {% endblock %}
-  </tbody>
+{% block ta_tabs %}
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#ta-urgent" aria-controls="profile" role="tab" data-toggle="tab">Urgent</a></li>
+      <li role="presentation"><a href="#ta-nonurgent" aria-controls="home" role="tab" data-toggle="tab">Non-Urgent</a></li>
+      <li role="presentation"><a href="#request-tab" aria-controls="home" role="tab" data-toggle="tab">Create New</a></li> <!-- tab defined above -->
+    </ul>
+{% endblock %}
 
+{% block ta_tab_contents %}
+    <div id="ta-urgent" class="tab-pane" role="tabpanel">
+    </div>
+
+    <div id="ta-nonurgent" class="tab-pane" role="tabpanel">
+    </div>
+{% endblock %}
 
 
 {% block extra_form_elements %}
