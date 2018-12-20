@@ -14,6 +14,7 @@ function weekSelect() {
   for (var week_num = 0; week_num < 20; week_num++){
     var each=$('<option></option>', {'value': week_num, 'text': 'Week '+week_num});
     if (week_num == {{week}}){
+      console.log({{week}});
       each.selected = true;
     };
     $('#gospelWeek').append(each);

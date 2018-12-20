@@ -40,7 +40,7 @@ th,td {
       <tr>
         <td>
           <div>
-            <select name="teams" multiple>
+            <select name="teams" multiple style="height:300px">
               {% for campus in campuses %}
               <option value={{ campus.id }}>{{ campus }}</option>
               {% endfor %}
@@ -52,7 +52,7 @@ th,td {
         </td>
         <td>
           <div>
-            <select name="weeks" multiple>
+            <select name="weeks" multiple style="height:300px">
               {% for week in weeks %}
               <option value={{ week }}>Week {{ week }}</option>
               {% endfor %}

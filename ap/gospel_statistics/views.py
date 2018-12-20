@@ -14,6 +14,9 @@ from braces.views import GroupRequiredMixin
 from .models import GospelPair, GospelStat
 from teams.models import Team
 
+# Import for generate
+from aputils.utils import render_to_pdf
+
 # ctx[cols] = attributes
 attributes = [
     'Tracts Distributed', 'Bibles Distributed', 'Contacted (> 30 sec)', 'Led to Pray', 'Baptized',
@@ -40,7 +43,6 @@ def get_week():
       return i
 
 
-# In Progress
 class GospelStatisticsView(TemplateView):
   template_name = "gospel_statistics/gospel_statistics.html"
 
@@ -92,7 +94,7 @@ class GospelStatisticsView(TemplateView):
     for i in list_of_pairs:
       pair = GospelPair.objects.filter(id=i)
       stat = GospelStat.objects.filter(gospelpair=pair, week=current_week)[0]
-      # #Why doesn't this work?
+      ## Why doesn't this work?
       # for i in range(13):
       #  eval('stat.'+_attributes[i]+' = list_of_stats['+str(index+i)+']')
       stat.tracts_distributed = list_of_stats[index]
@@ -133,6 +135,7 @@ class GospelStatisticsView(TemplateView):
 
 class GenerateReportView(GroupRequiredMixin, TemplateView):
   template_name = "gospel_statistics/generate_report.html"
+  ## Need to check
   group_required = ['training_assistant']
 
   def get_context_data(self, **kwargs):
@@ -146,12 +149,31 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     return ctx
 
   def post(self, request, *args, **kwargs):
-    teams = request.POST.getlist('teams')
+    teams_id = request.POST.getlist('teams')
+    teams = Team.objects.filter(id__in=teams_id)
     weeks = request.POST.getlist('weeks')
+    # 1 = Full Report, 2 = Week & Total, 3 = Total Only
     report_type = request.POST.get('report_type')
     save_type = request.POST.get('save_type')
 
-    ##Generate Report here
+    ## Generate Report here
+    if report_type == 3:
+      pass
+    elif report_type == 2:
+      pass
+    else:
+      for team in teams:
+        for week in weeks:
+          gospelpairs = GospelPair.objects.filter(team=team)
+          stats = GospelStat.objects.filter(gospelpair__in=gospelpairs, week=week)
+          for stat in stats:
+          ## fix here
+            print stat.conference
+          '''
+            for each in _attributes:
+              eval('print stat.'+each)
+          '''
+
     ctx = {
       'page_title': 'Generate Report',
       'attributes': attributes,
@@ -168,6 +190,9 @@ class NewGospelPairView(TemplateView):
     current_team = self.request.user.team
     # Retrieve the selected trainees
     list_of_trainee_id = request.POST.getlist('inputs')
+    # Do not create empty gospel pairs
+    if len(list_of_trainee_id) == 0:
+        return redirect(reverse('gospel_statistics:gospel-statistics-view'))
     list_of_trainees = []
     for each in list_of_trainee_id:
       list_of_trainees.extend(Trainee.objects.filter(id=each))
@@ -179,8 +204,8 @@ class NewGospelPairView(TemplateView):
       gospelpair.trainees.add(each)
     # Check for duplicate
     for each in GospelPair.objects.filter(team=current_team, term=C_TERM):
-      # #Need to add an alert
       if each.id is not gospelpair.id and set(each.trainees.all()) == set(gospelpair.trainees.all()):
+        ## Need to add an alert for duplicate gospel pair
         gospelpair.delete()
         return redirect(reverse('gospel_statistics:gospel-statistics-view'))
     # Create 20 week GospelStats for the new gospelpair
@@ -201,6 +226,7 @@ def delete_pair(request):
   current_id = request.POST['pair_id']
   pair = GospelPair(id=current_id)
   # Delete the pair
+  ## Add a warning for deleting a gospel pair
   pair.delete()
   return redirect(reverse('gospel_statistics:gospel-statistics-view'))
 
@@ -237,11 +263,11 @@ def TAGospelStatisticsView(request):
   campus_average = []
   community_average = []
   for i in campus_total:
-    campus_average.append(i/max(float(campus_trainees),1))
+    campus_average.append("{0:.2f}".format(i/max(float(campus_trainees),1)))
   for i in community_total:
-    community_average.append(i/max(float(community_trainees),1))
+    community_average.append("{0:.2f}".format(i/max(float(community_trainees),1)))
 
-  #ct = GospelStat.objects.filter(gospelpair__in=pairs)
+  #ctx = GospelStat.objects.filter(gospelpair__in=pairs)
   ctx = {
     'page_title': 'Team Statistics Summary',
     'attributes': attributes,
