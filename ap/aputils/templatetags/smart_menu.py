@@ -107,14 +107,14 @@ def generate_menu(context):
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
           SubMenuItem(name='Class Files', url='classes:index'),
           SubMenuItem(name='Greek Vocab', url='http://attendance.ftta.lan/ftta/greek/greekVocab.php'),
-          SubMenuItem(name='TC Printer Instructions', url='http://attendance.ftta.lan/ftta/printers.php')
+          SubMenuItem(name='TC Printer Instructions', url='/printer')
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Designated Services Trainees', url='services:designated_services_viewer'),
           SubMenuItem(name='Designated Services Hours', url='services:service_hours_ta_view'),
           # SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
-          # SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
+          SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
       trainee_only=[
           SubMenuItem(name='View Read Announcements', url='announcements:announcements-read'),
