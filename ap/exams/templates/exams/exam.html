@@ -52,9 +52,9 @@
               {% for question in section.questions %}
                 {% if question.prompt.strip != '' %}
                   {% include section.template %}
-                  <br>
                 {% endif %}
               {% endfor %}
+            <br>
             {% empty %}
               <i>No exam questions to view.</i><br />
             {% endfor %}

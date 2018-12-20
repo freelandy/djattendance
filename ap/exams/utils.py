@@ -224,12 +224,6 @@ def save_exam_creation(request, pk):
   for section in sections:
     section_id = int(section.get('section_id', -1))
     section_instructions = section['instructions']
-    if section_instructions == "":
-      exam.delete()
-      for section in Section.objects.all():
-        if section.exam is None:
-          section.delete()
-      return (False, "No section instructions given.")
     section_questions = section['questions']
     section_type = section['section_type']
     required_number_to_submit = section['required_number_to_submit']
