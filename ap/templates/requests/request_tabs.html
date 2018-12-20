@@ -39,7 +39,7 @@
 	<h2>{{ view.model|model_verbose_name|title }}</h2>
 
 	{% if view.request.user|is_trainee %}
-	  <ul class="nav nav-tabs" role="tablist">
+	  <ul class="nav nav-tabs" role="tablist" style="margin-top: 35px">
 	    <li role="presentation" class="active"><a href="#request-tab" aria-controls="home" role="tab" data-toggle="tab">Request</a></li>
 	    <li role="presentation"><a href="#trainee-history" aria-controls="profile" role="tab" data-toggle="tab">History</a></li>
 	  </ul>
