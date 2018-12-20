@@ -19,6 +19,7 @@ from services.models import (Assignment, Category, Prefetch, SeasonalServiceSche
 import json
 
 from aputils.utils import WEEKDAY_CODES
+from services.utils import (SERVICE_CHECKS)
 
 
 @login_required
@@ -40,13 +41,24 @@ def home(request):
   if is_trainee(user):
     worker = Worker.objects.get(trainee=user)
 
-    try:
+    if request.GET.get('week_schedule'):
+      current_week = request.GET.get('week_schedule')
+      current_week = int(current_week)
+      current_week = current_week if current_week < LAST_WEEK else LAST_WEEK
+      current_week = current_week if current_week > FIRST_WEEK else FIRST_WEEK
+      cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+    else:
       # Do not set as user input.
       current_week = Term.current_term().term_week_of_date(date.today())
       cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+    
+    # try:
+    #   # Do not set as user input.
+    #   current_week = Term.current_term().term_week_of_date(date.today())
+    #   cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
       
-    except ValueError:
-      cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+    # except ValueError:
+    #   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
 
     term_week_code = str(term_id) + "_" + str(current_week)
 
@@ -82,9 +94,23 @@ def home(request):
     print worker, cws, list(service_db.values())
     print service_db, designated_list
 
+  categories = Category.objects.prefetch_related(
+      Prefetch('services', queryset=Service.objects.order_by('weekday', 'start')),
+      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(assignments__week_schedule=cws).annotate(workers_count=Count('assignments__workers')).order_by('-worker_group__assign_priority')),
+      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(~Q(Q(assignments__isnull=False) & Q(assignments__week_schedule=cws))).filter(workers_required__gt=0), to_attr='unassigned_slots'),
+      Prefetch('services__serviceslot_set__assignments', queryset=Assignment.objects.filter(week_schedule=cws)),
+      Prefetch('services__serviceslot_set__assignments__workers', queryset=Worker.objects.select_related('trainee').order_by('trainee__gender', 'trainee__firstname', 'trainee__lastname'))
+  ).distinct()
+
+  service_categories = Category.objects.filter(services__designated=False).prefetch_related(
+      Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday', 'start')),
+      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
+  ).distinct()
+
   data = {
       'daily_nourishment': Portion.today(),
       'user': user,
+      'worker': worker,
       'isTrainee': is_trainee(user),
       'trainee_info': BibleReading.weekly_statistics,
       'current_week': current_week,
@@ -92,6 +118,8 @@ def home(request):
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
       'weekday_codes':json.dumps(WEEKDAY_CODES),
+      'categories': categories,
+      'service_categories': service_categories,
       'service': service_db,
       'service_day': list(service_db.values()),
       'service_name': list(service_db),
@@ -121,7 +149,6 @@ def home(request):
     data['request_status'] = MaintenanceRequest.STATUS
 
   return render(request, 'index.html', context=data)
-
 
 def custom404errorview(request):
   ctx = {
