@@ -30,6 +30,7 @@ requests==2.19.1
 
 # PDF
 xhtml2pdf==0.2.2
+pdfminer.six==20181108
 
 # PIL (Image Upload)
 Pillow==5.2.0
