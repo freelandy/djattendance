@@ -78,9 +78,9 @@ class ChartEditView(generic.DetailView):
     context['trainees'] = trainees
     context['trainees_bb'] = l_render(TraineeRollSerializer(trainees, many=True).data).decode('utf-8')
 
-    chart = Chart.objects.filter(pk=self.pk)
-    context['chart'] = chart.get()
-    context['chart_bb'] = l_render(ChartSerializer(chart, many=True).data).decode('utf-8')
+    chart = Chart.objects.get(pk=self.pk)
+    context['chart'] = chart
+    context['chart_bb'] = l_render(ChartSerializer(chart).data).decode('utf-8')
     context['chart_id'] = self.pk
 
     seats = Seat.objects.filter(chart=chart)
