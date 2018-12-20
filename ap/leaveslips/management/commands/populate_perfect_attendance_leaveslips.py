@@ -5,8 +5,8 @@ class Command(BaseCommand):
   # to use: python ap/manage.py populate_perfect_attendance_leaveslips --settings=ap.settings.dev
   def _update_leaveslips(self):
     LS_TYPES = ['SERV', 'CONF', 'TTRIP', 'FWSHP']
-    individualSlips = IndividualSlip.objects.filter(type__in=LS_TYPES).update(does_not_count=True)
-    groupSlips = GroupSlip.objects.filter(type__in=LS_TYPES).update(does_not_count=True)
+    IndividualSlip.objects.filter(type__in=LS_TYPES).update(does_not_count=True)
+    GroupSlip.objects.filter(type__in=LS_TYPES).update(does_not_count=True)
 
   def handle(self, *args, **options):
     # print("* Updating leave slips...")
