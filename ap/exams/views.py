@@ -129,7 +129,7 @@ class ExamTemplateListView(ListView):
     for makeup_exam in makeup:
       exams.append(makeup_exam.exam)
       makeup_exams.append(makeup_exam.exam)
-    exams = list(exams)
+    exams = list(reversed(exams))
     # TODO - Fix this. to show makeup
     for exam in exams:
       exam.visible = (exam.is_open and trainee_can_take_exam(user, exam)) or exam.is_graded_open

@@ -84,6 +84,11 @@ function filterTermClass() {
           </div>
           <h3 class="panel-title exam-panel-title">{{ exam }}
             {% if exam.completed and not exam_service %}<span class="badge alert-success">Finalized</span>{% endif %}
+            {% if exam_service and exam.is_open %}
+              <span class="badge alert-success" style="background-color:green">Opened</span>
+            {% elif exam_service %}
+              <span class="badge alert-success" style="background-color:#E85328">Closed</span> 
+            {% endif %}
           </h3>
         </div>
         {% if exam_service %}
