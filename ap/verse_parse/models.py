@@ -1,5 +1,7 @@
-import urllib.request, urllib.error, urllib.parse
 import json
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from django.db import models
 
@@ -41,7 +43,6 @@ class Reference(models.Model):
     else:
       return False
 
-
   def get_verses(self):
     '''
     Returns a dictionary {reference: verse} of a verse (or multiple consecutive verses)
@@ -52,13 +53,12 @@ class Reference(models.Model):
       if self.end_chapter is None:
         response = urllib.request.urlopen("http://rcvapi.herokuapp.com/v/%s/%d/%d" % (book_abbrev, self.chapter, self.verse,))
       else:
-        response = urllib.request.urlopen("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, self.chapter, self.verse, book_abbrev, self.end_chapter, self.end_verse,) )
+        response = urllib.request.urlopen("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, self.chapter, self.verse, book_abbrev, self.end_chapter, self.end_verse,))
       data = json.loads('[%s]' % response.read())
       verses = data[0]['verses']
       return verses
-    except:
+    except Exception:
       return {}
-
 
   def __str__(self):
     try:
