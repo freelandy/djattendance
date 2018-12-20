@@ -18,7 +18,7 @@
     "babel-loader": "^8.0.0-beta.0",
     "bootstrap-sass": "^3.4.0",
     "bootstrap-toggle": "^2.2.2",
-    "countable": "^2.1.1",
+    "countable": "^3.0.0",
     "css-loader": "^0.28.11",
     "datatables.net-bs": "^1.10.19",
     "datatables.net-buttons": "^1.5.4",
@@ -56,9 +56,9 @@
     "node-sass": "^4.11.0",
     "pdfmake": "^0.1.39",
     "prop-types": "^15.6.1",
-    "react": "^15.5.4",
-    "react-bootstrap": "0.31.3",
-    "react-dom": "^15.5.4",
+    "react": "^15.6.2",
+    "react-bootstrap": "0.32.1",
+    "react-dom": "^15.6.2",
     "react-formal": "0.25.4",
     "react-formal-inputs": "2.1.1",
     "react-hot-loader": "^3.0.0-beta.7",
@@ -85,7 +85,7 @@
     "webpack-dev-server": "^3.1.10",
     "webpack-merge": "^4.1.5",
     "xolor": "^1.2.0",
-    "yup": "0.20.0"
+    "yup": "0.24.1"
   },
   "scripts": {
     "webpack": "webpack --config webpack/webpack.dev.config.js --progress --colors",
