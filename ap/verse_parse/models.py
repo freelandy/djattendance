@@ -51,9 +51,11 @@ class Reference(models.Model):
     book_abbrev = self.book.strip('.').replace(' ', '')
     try:
       if self.end_chapter is None:
-        response = urllib.request.urlopen("http://rcvapi.herokuapp.com/v/%s/%d/%d" % (book_abbrev, self.chapter, self.verse,))
+        req = urllib.request.Request("http://rcvapi.herokuapp.com/v/%s/%d/%d" % (book_abbrev, self.chapter, self.verse,))
+        response = urllib.request.urlopen(req)
       else:
-        response = urllib.request.urlopen("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, self.chapter, self.verse, book_abbrev, self.end_chapter, self.end_verse,))
+        req = urllib.request.Request("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, self.chapter, self.verse, book_abbrev, self.end_chapter, self.end_verse,))
+        response = urllib.request.urlopen(req)
       data = json.loads('[%s]' % response.read())
       verses = data[0]['verses']
       return verses
