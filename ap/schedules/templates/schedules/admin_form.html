@@ -136,7 +136,7 @@
   {% bootstrap_form form %}
   <button type="submit" class="btn btn-primary btn-save" name="{{button_label}}" id="submit">{{button_label|safe}}</button>
 {% if delete_button %}
-  <button type="submit" class="btn btn-danger btn-delete" name="Delete">Delete</button>
+  <button type="submit" class="btn btn-danger btn-delete" name="Delete" onclick="return confirm('Are you sure you want to delete the schedule?')">Delete</button>
 {% endif %}
 </form>
 {% if assign_trainees_button %}
