@@ -19,7 +19,7 @@ from aputils.utils import render_to_pdf
 
 # ctx[cols] = attributes
 attributes = [
-    'Tracts Distributed', 'Bibles Distributed', 'Contacted (> 30 sec)', 'Led to Pray', 'Baptized',
+    'Tracts Distributed', 'Bibles Distributed', 'Contacted (>30 sec)', 'Led to Pray', 'Baptized',
     '2nd Appointment', 'Regular Appointment', 'Minutes on the Gospel', 'Minutes in Appointment',
     'Bible Study', 'Small Groups', 'District Meeting (New Student)', 'Conference'
 ]
@@ -149,19 +149,24 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     return ctx
 
   def post(self, request, *args, **kwargs):
+    ctx = super(GenerateReportView, self).get_context_data(**kwargs)
     teams_id = request.POST.getlist('teams')
     teams = Team.objects.filter(id__in=teams_id)
+    weeks = []
     weeks = request.POST.getlist('weeks')
     # 1 = Full Report, 2 = Week & Total, 3 = Total Only
     report_type = request.POST.get('report_type')
     save_type = request.POST.get('save_type')
 
     ## Generate Report here
+    # Full Report
+    if report_type == 1:
+      report += 'hi\n'
+    # Week
+    if report_type == 2:
+      report += 'bye\n'
+    # Total
     if report_type == 3:
-      pass
-    elif report_type == 2:
-      pass
-    else:
       for team in teams:
         for week in weeks:
           gospelpairs = GospelPair.objects.filter(team=team)
@@ -174,14 +179,42 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
               eval('print stat.'+each)
           '''
 
-    ctx = {
-      'page_title': 'Generate Report',
-      'attributes': attributes,
-      'campuses': Team.objects.filter(type='CAMPUS'),
-      'communities': Team.objects.filter(type='COM'),
-      'weeks': [i for i in range(20)]
-    }
-    return super(GenerateReportView, self).render_to_response(ctx)
+    team = teams[0]
+    code = team.code
+    gospelpairs = GospelPair.objects.filter(team=team, term=C_TERM)
+    ## Weekly
+    weekly = []
+    for week in weeks:
+      one_week = GospelStat.objects.filter(gospelpair__in=gospelpairs, week=week)
+      weeklys = ['Week '+week]+[0 for i in range(len(_attributes))]
+      for every in one_week:
+        for i in range(len(_attributes)):
+          weeklys[i+1] += eval('every.'+_attributes[i])
+      weekly.append(weeklys)
+    ctx['weekly'] = weekly
+    ## Total
+    stats = GospelStat.objects.filter(gospelpair__in=gospelpairs)
+    totals = [0 for i in range(len(_attributes))]
+    for stat in stats:
+      for i in range(len(_attributes)):
+        totals[i] += eval('stat.'+_attributes[i])
+    total = [['All '+code+' GP Pair Totals Added Together']+totals]
+    ## Fix next three append
+    total.append(['FTTA Grand Total (Campus/Community Teams)']+[])
+    total.append([code+' Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
+    total.append(['FTTA Total Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
+    total.append([code+' GP Pair Team Average']+["{0:.2f}".format(each/max(1,float(len(gospelpairs)))) for each in totals])
+    ctx['total'] = total
+    ctx['page_title'] = 'Gospel Statistics Report'
+    ctx['attributes'] = attributes
+    ctx['weeks'] = [i for i in range(20)]
+      ## Temporary
+    ctx['team'] = team.name
+    ctx['stats'] = GospelStat.objects.filter(gospelpair__in=gospelpairs)
+    
+    #return super(GenerateReportView, self).render_to_response(ctx)
+    ## Make it downloadable
+    return render(request, 'gospel_statistics/gospel_statistics_report_base.html', ctx)
 
 class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
