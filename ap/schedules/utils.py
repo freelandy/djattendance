@@ -54,8 +54,8 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
     new_sch.comments = old_sch.comments + ' // used for transfers'
     weeks = ''
 
-    # goes up to service week
-    for i in range(start_week, 17):
+    # includes service week (week 18)
+    for i in range(start_week, 19):
       weeks = weeks + str(i) + ','
     new_sch.weeks = weeks[:-1]
     new_sch.save()
