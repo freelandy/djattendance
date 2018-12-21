@@ -36,9 +36,11 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
   found = False
   for sch in potential_sch.exclude(id=new_sch.id):
     startWeek = int(sch.weeks.split(',')[0])
-    if start_week == startWeek:
-      new_sch = sch
-      found = True
+    if start_week == startWeek and sch.events.count() == 2:
+      events = sch.events.all()
+      if events[0].class_type == 'AFTN' and events[1].class_type == 'AFTN':
+        new_sch = sch
+        found = True
 
   # if not found, then create, else just use the one that's found
   all_names = ''
