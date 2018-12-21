@@ -37,7 +37,7 @@ class AnnouncementRequest(generic.edit.CreateView):
     return super(AnnouncementRequest, self).form_valid(form)
 
 
-class AnnouncementRequestList(generic.TemplateView):
+class AnnouncementRequestList(generic.ListView):
   model = Announcement
   template_name = 'announcement_list/list.html'
 

@@ -42,7 +42,6 @@
             <th>Announce</th>
             <th>Pop up</th>
             <th>Announcement</th>
-            <th>Display to</th>
             <th>Status</th>
             <th>Actions</th>
             <th></th>
@@ -55,9 +54,6 @@
               <td>{{request.announcement_date}}</td>
               <td>{{request.is_popup}}</td>
               <td>{{request.announcement}}</td>
-              {% with request as announcement %}
-              <td>{% include "announcements/_announcement_trainees.html" %}</td>
-              {% endwith %}
               <td>{{request.get_status_display}}</td>
               <td>
                 {% if view.request.user|is_TA %}
