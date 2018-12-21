@@ -687,7 +687,7 @@ def finalize_personal(request):
   new_finalizerolls, created = RollsFinalization.objects.get_or_create(trainee=trainee, events_type='EV')
   if new_finalizerolls.weeks == '':
     new_finalizerolls.weeks = str(week)
-  else:
+  elif str(week) not in set(new_finalizerolls.weeks): #prevent duplicates
     new_finalizerolls.weeks = new_finalizerolls.weeks + "," + str(week)
   new_finalizerolls.save()
 
