@@ -182,7 +182,7 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
               eval('print stat.'+each)
           '''
 
-    for team = teams[0]
+    team = teams[0]
     code = team.code
     gospelpairs = GospelPair.objects.filter(team=team, term=C_TERM)
     ## Each Pair
