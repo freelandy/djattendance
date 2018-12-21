@@ -25,23 +25,17 @@
     var serviceNames = "{{service_name}}";
     var serviceDays = "{{service_day}}";
     var designated = "{{designated_list}}";
-    var categories = "{{categories}}";
-    var cws = "{{cws}}";
   
     // regex string data for display
     var regex = /(?<=\:\s)(.*?)(?=\&)/g;
-    var categories_list = categories.match(regex);
     var service_list = serviceNames.match(regex);
-    // console.log(service_list);
     var designated_list = designated.match(regex);
-    // console.log(designated_list);
     regex = /(\d+)/g;
     var serviceDay_list = serviceDays.match(regex);
     console.log(service_list, serviceDay_list, serviceDay_list.length);
 
     function changeServiceWeek(){
       var weekId = $("#week-select").val();
-      // var serviceUrl = "/services/?week_schedule=" + weekId;
       console.log(weekId, worker, serviceUrl);
 
       $.ajax({
@@ -50,11 +44,10 @@
           dataType: "json",
           data: {
               "week": weekId,
-              // "worker": worker,
-              // "cws": cws,
           },
           success: function(data){
-
+            var obj = JSON.parse(data);
+            console.log(obj);
           }
       });
     }
@@ -156,47 +149,6 @@
   
     {% elif user.type == 'R' or user.type == 'C' %}
 
-    <!---------------------------------->
-    <div role="tabpanel" class="tab-pane" id="review">
-      <h3>Current Assignments Report</h3>
-      <div class="data-table-container">
-        <table class="table table-striped table-bordered data-table" id="results">
-          <thead>
-            <tr>
-              <th>Worker</th>
-              {% for category in categories %}
-                <th class="category-info">{{ category.name }}</th>
-              {% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{{ worker }}</td>
-              {% for category in categories %}
-                {% if category in worker.trainee.services %}
-                  <td>
-                  {% with services=worker.services|get_item:category %}
-                    {% for s, role in services %}
-                      {{ s.weekday|weekday_code }}
-                      {% if role == '*' %}*{% endif %}
-                      {% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                  {% endwith %}
-                  </td>
-                {% else %}
-                  <td></td>
-                {% endif %}
-              {% endfor %}
-              {% for c in worker.checks %}
-                <td>{{ c }}</td>
-              {% endfor %}
-              <td>{{ worker.trainee.gender }}</td>
-             </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!------------------------------------>
     <div class="row">
       <!-- Panels -->
       <div class="col-md-4">

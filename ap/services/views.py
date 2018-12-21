@@ -309,9 +309,6 @@ def changeWeek(request):
     cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
 
-  # print trainee, cws
-
-  workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
     Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
   
@@ -325,9 +322,17 @@ def changeWeek(request):
         else:
           service_db.setdefault(a.service, a.service.weekday)
 
-  print trainee, service_db, designated_list
+  data = {
+      'service': service_db,
+      'service_day': list(service_db.values()),
+      'service_name': list(service_db),
+      'designated_list': designated_list,
+  }
+
+  # print trainee, type(service_db), service_db, designated_list
+  print list(service_db.values()), list(service_db)
   
-  return HttpResponse(service_db, content_type='application/json')
+  return HttpResponse(data, content_type='application/json')
 
 
 # API Views
