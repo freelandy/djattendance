@@ -36,9 +36,21 @@ class AnnouncementRequest(generic.edit.CreateView):
     return super(AnnouncementRequest, self).form_valid(form)
 
 
-class AnnouncementRequestList(generic.ListView):
+"""
+This is where I need to work on
+"""
+class AnnouncementRequestList(generic.TemplateView):
   model = Announcement
   template_name = 'requests/request_list.html'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(AnnouncementRequestList, self).get_context_data(**kwargs)
+    if is_TA(self.request.user):
+      ctx['announcements'] =  Announcement.objects.filter().order_by('status', 'announcement_date')
+    else:
+      trainee = self.request.user
+      ctx['announcements'] =  Announcement.objects.filter(author=trainee).order_by('status')
+    return ctx
 
   def get_queryset(self):
     if is_TA(self.request.user):
@@ -46,6 +58,8 @@ class AnnouncementRequestList(generic.ListView):
     else:
       trainee = self.request.user
       return Announcement.objects.filter(author=trainee).order_by('status')
+
+
 
 
 class AnnouncementDetail(generic.DetailView):

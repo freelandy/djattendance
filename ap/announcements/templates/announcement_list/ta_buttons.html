@@ -1,18 +1,18 @@
-<a href="{% url 'announcements:modify-status' status='A' id=request.id %}">
+<a href="{% url 'announcements:modify-status' status='A' id=announcement.id %}">
   <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>
 </a>
- <a href="{% url 'announcements:modify-status' 'D' request.id %}">
+ <a href="{% url 'announcements:modify-status' 'D' announcement.id %}">
   <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
 </a>
-{% if not 'Fellowship' in request.get_status_display %}
-   <a href="{% url 'announcements:modify-status' 'F' request.id %}">
+{% if not 'Fellowship' in announcement.get_status_display %}
+   <a href="{% url 'announcements:modify-status' 'F' announcement.id %}">
     <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
   </a>
 {% endif %}
-<a href ="{{ request.get_update_url }}">
+<a href ="{{ announcement.get_update_url }}">
   <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
 </a>
-<a href="{{ request.get_delete_url }}">
+<a href="{{ announcement.get_delete_url }}">
   <button class="btn btn-danger delete-request-button" type="submit" title="Delete"/>
     <span class="glyphicon glyphicon-trash"></span>
   </button>
