@@ -167,7 +167,6 @@ function getWeeklyStatus() {
 /****** functions used in index and bible_tracker page ******/
 function changeWeek() {
     var weekId = $("#week-select").val();
-    // var weekId = $("#week_select").find("option:selected").attr("id");
     var userId = $("input#userId").val();
     var url = "/bible_tracker/?week=" + weekId;
     history.pushState({ urlPath: url }, "", url);

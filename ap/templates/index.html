@@ -21,10 +21,12 @@
     var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
     var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
     var designatedHoursUrl = "{% url 'services:designated_service_hours' %}";
+    var serviceUrl = "{% url 'services:changeWeek' %}";
     var serviceNames = "{{service_name}}";
     var serviceDays = "{{service_day}}";
     var designated = "{{designated_list}}";
     var categories = "{{categories}}";
+    var cws = "{{cws}}";
   
     // regex string data for display
     var regex = /(?<=\:\s)(.*?)(?=\&)/g;
@@ -39,10 +41,8 @@
 
     function changeServiceWeek(){
       var weekId = $("#week-select").val();
-      var serviceUrl = "/services/?week_schedule=" + weekId;
-      currentWeek = weekId;
-
-      console.log(currentWeek);
+      // var serviceUrl = "/services/?week_schedule=" + weekId;
+      console.log(weekId, worker, cws, serviceUrl);
 
       $.ajax({
           type: "GET",
@@ -50,7 +50,12 @@
           dataType: "json",
           data: {
               "week": weekId,
+              // "worker": worker,
+              // "cws": cws,
           },
+          success: function(data){
+
+          }
       });
     }
 
@@ -60,7 +65,8 @@
       changetoFinalize();
       getWeeklyStatus();
   
-      $("#week-select").on('change', changeHomepageWeek, changeServiceWeek);
+      $("#week-select").on('change', changeHomepageWeek);
+      $("#week-select").on('change', changeServiceWeek);
   
       $("#bt-button").click(function (e) {
         e.preventDefault();

@@ -11,11 +11,12 @@ from announcements.notifications import get_announcements, get_popups
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_STR
 from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
-from terms.models import Term
+from terms.models import FIRST_WEEK, LAST_WEEK, Term
 from house_requests.models import MaintenanceRequest
 from django.core.urlresolvers import reverse_lazy
 from services.models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
                       Service, ServiceSlot, WeekSchedule, Worker)
+
 import json
 
 from aputils.utils import WEEKDAY_CODES
@@ -116,6 +117,7 @@ def home(request):
       'current_week': current_week,
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
+      'cws': cws,
       'finalized': finalized_str,
       'weekday_codes':json.dumps(WEEKDAY_CODES),
       'categories': categories,
@@ -124,7 +126,6 @@ def home(request):
       'service_day': list(service_db.values()),
       'service_name': list(service_db),
       'designated_list': designated_list,
-      'weekday_codes': json.dumps(WEEKDAY_CODES)
   }
 
   notifications = get_announcements(request)
@@ -149,6 +150,7 @@ def home(request):
     data['request_status'] = MaintenanceRequest.STATUS
 
   return render(request, 'index.html', context=data)
+
 
 def custom404errorview(request):
   ctx = {
