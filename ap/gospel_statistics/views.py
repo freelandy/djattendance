@@ -90,6 +90,8 @@ class GospelStatisticsView(TemplateView):
     list_of_pairs = request.POST.getlist('pairs')
     list_of_stats = request.POST.getlist('inputs')
     current_week = get_week()
+    if 'week' in self.kwargs:
+      current_week = self.kwargs['week']
     index = 0
     for i in list_of_pairs:
       pair = GospelPair.objects.filter(id=i)
@@ -112,6 +114,7 @@ class GospelStatisticsView(TemplateView):
       stat.conference = list_of_stats[index + 12]
       stat.save()
       index += 13
+    ## Fix returning to current week instead of remaining in selected week
     return redirect(reverse('gospel_statistics:gospel-statistics-view'))
 
   def get_context_data(self, **kwargs):
@@ -182,16 +185,40 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     team = teams[0]
     code = team.code
     gospelpairs = GospelPair.objects.filter(team=team, term=C_TERM)
+    ## Each Pair
+    pairs = []
+    for pair in gospelpairs:
+      pair_total = [0 for i in range(len(_attributes))]
+      names = ''
+      for trainee in pair.trainees.all():
+        if len(names) > 0:
+          names += ', '
+        names += trainee.firstname+' '+trainee.lastname
+      one_pair = [[names]+attributes]
+      for week in weeks:
+        one = GospelStat.objects.filter(gospelpair=pair, week=week)[0]
+        one_pair.append(['Week '+week]+[eval('one.'+att) for att in _attributes])
+        for i in range(len(_attributes)):
+          pair_total[i]+=eval('one.'+_attributes[i])
+      one_pair.append(['GP Total']+pair_total)
+      pairs.append(one_pair)
+    ctx['pairs'] = pairs
+
     ## Weekly
     weekly = []
+    weekly_total = ['Weekly Total']+[0 for i in range(len(_attributes))]
     for week in weeks:
       one_week = GospelStat.objects.filter(gospelpair__in=gospelpairs, week=week)
       weeklys = ['Week '+week]+[0 for i in range(len(_attributes))]
       for every in one_week:
         for i in range(len(_attributes)):
-          weeklys[i+1] += eval('every.'+_attributes[i])
+          val = eval('every.'+_attributes[i])
+          weeklys[i+1] += val
+          weekly_total[i+1] += val
       weekly.append(weeklys)
+    weekly.append(weekly_total)
     ctx['weekly'] = weekly
+
     ## Total
     stats = GospelStat.objects.filter(gospelpair__in=gospelpairs)
     totals = [0 for i in range(len(_attributes))]
@@ -208,7 +235,6 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     ctx['page_title'] = 'Gospel Statistics Report'
     ctx['attributes'] = attributes
     ctx['weeks'] = [i for i in range(20)]
-      ## Temporary
     ctx['team'] = team.name
     ctx['stats'] = GospelStat.objects.filter(gospelpair__in=gospelpairs)
     
