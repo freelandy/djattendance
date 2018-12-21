@@ -1,16 +1,17 @@
 import datetime
-
-from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import get_object_or_404, redirect
-from django.views import generic
-from braces.views import GroupRequiredMixin
+from itertools import chain
 
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
+from braces.views import GroupRequiredMixin
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.views import generic
+from terms.models import Term
 
+from .forms import AnnouncementDayForm, AnnouncementForm
 from .models import Announcement
-from .forms import AnnouncementForm, AnnouncementDayForm
 
 
 class AnnouncementRequest(generic.edit.CreateView):
@@ -36,30 +37,31 @@ class AnnouncementRequest(generic.edit.CreateView):
     return super(AnnouncementRequest, self).form_valid(form)
 
 
-"""
-This is where I need to work on
-"""
 class AnnouncementRequestList(generic.TemplateView):
   model = Announcement
-  template_name = 'requests/request_list.html'
+  template_name = 'announcement_list/list.html'
 
   def get_context_data(self, **kwargs):
     ctx = super(AnnouncementRequestList, self).get_context_data(**kwargs)
+    anns = self.model.objects.none()
     if is_TA(self.request.user):
-      ctx['announcements'] =  Announcement.objects.filter().order_by('status', 'announcement_date')
+      for status in ['P', 'F', 'D', 'A']:
+        anns = chain(anns, self.model.objects.filter(status=status).filter(date_requested__gte=Term.current_term().get_date(0, 0)).order_by('date_requested'))
+      ctx['announcements'] = anns
     else:
       trainee = self.request.user
-      ctx['announcements'] =  Announcement.objects.filter(author=trainee).order_by('status')
+      for status in ['P', 'F', 'D', 'A']:
+        anns = chain(anns, self.model.objects.filter(status=status, author=trainee).filter(date_requested__gte=Term.current_term().get_date(0, 0)).order_by('date_requested'))
+        ctx['announcements'] = anns
     return ctx
 
   def get_queryset(self):
     if is_TA(self.request.user):
-      return Announcement.objects.filter().order_by('status', 'announcement_date')
+      qs = self.model.objects.filter(status__in=['P', 'F']).filter(date_requested__gte=Term.current_term().get_date(0, 0)) | self.model.objects.filter(status='F').filter(date_requested__gte=Term.current_term().get_date(0, 0))
+      return qs.order_by('date_requested')
     else:
       trainee = self.request.user
-      return Announcement.objects.filter(author=trainee).order_by('status')
-
-
+      return self.model.objects.filter(trainee_author=trainee).filter(date_requested__gte=Term.current_term().get_date(0, 0)).order_by('status')
 
 
 class AnnouncementDetail(generic.DetailView):

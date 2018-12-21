@@ -1,0 +1,82 @@
+{% extends "requests/request_list.html" %}
+{% load common_tags %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $("#request_table").DataTable({
+      info: false,
+      paging: true,
+      autoWidth: true,
+      order: [[ 1, "desc" ]],
+      lengthMenu: [[25, 50, 100, 200, -1], [25, 50, 100, 200, "All"]],
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      columnDefs: [
+        {
+          "targets": 0,
+          "visible": false,
+          "searchable": false,
+        }
+      ]
+    });
+  });
+</script>
+{% endblock %}
+
+
+
+{% block tables %}
+{% ifusergroup training_assistant %}
+
+<div class="row">
+    <div class="col-md-12">
+    <br>
+      <table id="request_table" class="table table-condensed table-hover table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Name(s)</th>
+            <th>Announce</th>
+            <th>Pop up</th>
+            <th>Announcement</th>
+            <th>Display to</th>
+            <th>Status</th>
+            <th>Actions</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for request in announcements %}
+              <td>{{request.get_date_created}}</td>
+              <td>{{request.requester_name}}</td>
+              <td>{{request.announcement_date}}</td>
+              <td>{{request.is_popup}}</td>
+              <td>{{request.announcement}}</td>
+              {% with request as announcement %}
+              <td>{% include "announcements/_announcement_trainees.html" %}</td>
+              {% endwith %}
+              <td>{{request.get_status_display}}</td>
+              <td>
+                {% if view.request.user|is_TA %}
+                  {% include request.get_ta_button_template %}
+                {% else %}
+                  {% include request.get_button_template %}
+                {% endif %}
+
+              </td>
+              <td>
+                <a class="announcement_detail" href="{{request.get_absolute_url}}">Details</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</div>
+{% endifusergroup %}
+{% endblock %}
+
+

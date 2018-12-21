@@ -1,9 +1,9 @@
-{% if announcement.status != 'A' and announcement.status != 'F' %}
-  <a href ="{{ announcement.get_update_url }}">
+{% if request.status != 'A' and request.status != 'F' %}
+  <a href ="{{ request.get_update_url }}">
     <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
   </a>
 
-<a href="{{ announcement.get_delete_url }}">
+<a href="{{ request.get_delete_url }}">
   <button class="btn btn-danger delete-request-button" type="submit" title="Delete"/>
     <span class="glyphicon glyphicon-trash"></span>
   </button>

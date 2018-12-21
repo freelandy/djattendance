@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load bootstrap3 %}
 {% load common_tags %}
-
+{% bootstrap_messages %}
 
 {% block title %}
   {{ view.model|model_verbose_name|title }}s
@@ -10,55 +11,61 @@
 {% block content %}
 
 <h1>{{ view.model|model_verbose_name|title }}s</h1>
-    
-    {% if view.request.user|is_trainee or view.request.user|is_TA and not "audio" in view.model|model_verbose_name and not "web" in view.model|model_verbose_name %}
-      <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
-    {% endif %}
 
-    <div class="row">
-      <div class="col-md-12">
-      <br>
-        <table id="display_leaveslips" class="table table-condensed table-hover table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Name(s)</th>
-              <th>Announce</th>
-              <th>Pop up</th>
-              <th>Announcement</th>
-              <th>Display to</th>
-              <th>Status</th>
-              <th>Actions</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for announcement in announcements %}
-                <td>{{announcement.get_date_created}}</td>
-                <td>{{announcement.requester_name}}</td>
-                <td>{{announcement.announcement_date}}</td>
-                <td>{{announcement.is_popup}}</td>
-                <td>{{announcement.announcement}}</td>
-                <td>{% include "announcements/_announcement_trainees.html" %}</td>
-                <td>{{announcement.get_status_display}}</td>
-                <td>
-                  {% if view.request.user|is_TA %}
-                    {% include announcement.get_ta_button_template %}
-                  {% else %}
-                    {% include announcement.get_button_template %}
-                  {% endif %}
+{% if view.request.user|is_trainee or view.request.user|is_TA and not "audio" in view.model|model_verbose_name and not "web" in view.model|model_verbose_name %}
+  <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
+{% endif %}
 
-                </td>
-                <td>
-                  <a class="announcement_detail" href="{{announcement.get_absolute_url}}">Details</a>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+{% block extra_links %}{% endblock %}
+
+{% regroup object_list by get_status_display as sorted %}
+  {% for requestGroups in sorted reversed %}
+    <h4>{{ requestGroups.grouper }}</h4>
+
+    {% for request in requestGroups.list %}
+      {% if request.get_absolute_url %}
+        <a href="{{ request.get_absolute_url }}">
+      {% endif %}
+      <div class="panel
+        {% if requestGroups.grouper == 'Approved' or requestGroups.grouper == 'Completed' %}panel-success
+        {% elif requestGroups.grouper == 'Pending' %}panel-default
+        {% elif requestGroups.grouper == 'Denied' %}panel-danger
+        {% elif 'Fellowship' in requestGroups.grouper %}panel-info{% endif %}
+      ">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            {{ request.get_category }}
+            {% if view.request.user|is_TA %}
+            - submitted by {{ request.requester_name }}
+              <small>
+                on {{ request.get_date_created }}
+              </small>
+            {% endif %}
+          </h4>
+
+          <div class="pull-right">
+            {% if view.request.user|is_TA %}
+              {% include request.get_ta_button_template %}
+            {% else %}
+              {% include request.get_button_template %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="panel-body">
+          {% include request.get_detail_template %}
+        </div>
       </div>
-    </div>
+      {% if request.get_absolute_url %}
+        </a>
+      {% endif %}
+    {% endfor %}
 
+  {% empty %}
+    <h4><i>You have no {{ view.model|model_verbose_name }}s.</i></h4>
+  {% endfor %}
+
+  {% block tables %}{% endblock %}
 
 {% endblock %}
 
