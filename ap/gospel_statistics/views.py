@@ -182,7 +182,7 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
               eval('print stat.'+each)
           '''
 
-    team = teams[0]
+    for team = teams[0]
     code = team.code
     gospelpairs = GospelPair.objects.filter(team=team, term=C_TERM)
     ## Each Pair
@@ -236,10 +236,12 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     ctx['attributes'] = attributes
     ctx['weeks'] = [i for i in range(20)]
     ctx['team'] = team.name
+    ctx['term'] = C_TERM
     ctx['stats'] = GospelStat.objects.filter(gospelpair__in=gospelpairs)
     
     #return super(GenerateReportView, self).render_to_response(ctx)
     ## Make it downloadable
+    print render(request, 'gospel_statistics/gospel_statistics_report_base.html', ctx)
     return render(request, 'gospel_statistics/gospel_statistics_report_base.html', ctx)
 
 class NewGospelPairView(TemplateView):
