@@ -64,23 +64,49 @@ $(document).ready(() => {
   $("#delete_row").click(delete_row);
 
   // itinerary
+  var last_day = new Date(interim_end);
   if ($("#id_start").val() == 0 || $("#id_end").val() == 0) {
     $("#id_start").val(interim_start);
-    let dt = new Date(interim_end);
-    dt.setDate(dt.getDate());
-    $("#id_end").val(date_formatter(dt));
+    last_day.setDate(last_day.getDate());
+    $("#id_end").val(date_formatter(last_day));
   }
   $("#row_0 .itin-start input").prop( "readonly", true );
   $("#row_0 .itin-start input").addClass('readonly');
 
-  $(".int-itinerary .itin-end").change(function() {
-    var itin_end = $(this).find('input');
-    var itin_start = $(this).parent().find('.itin-start input');
-    var itin_end_val = new Date(itin_end.val());
-    var itin_start_val = new Date(itin_start.val());
+  $(".int-itinerary .itin-start").find('input').change(function() {
+    alert("Hello");
+  });
 
-    if (itin_end_val < itin_start_val && itin_start.prop('readonly') || itin_end_val == itin_start_val) {
-      itin_end.val()
+  $(".int-itinerary .itin-end").find('input').change(function() {
+    // itin_end = $(this)
+    var itin_start = $(this).parents('tr:first').find('.itin-start input');
+    var itin_end_date = new Date($(this).val());
+    var itin_start_date = new Date(itin_start.val());
+
+    if (itin_end_date < itin_start_date && itin_start.prop('readonly') || itin_end_date == itin_start_date) {
+      // new end date will be start date + 1
+      itin_end_date.setDate(itin_start_date.getDate() + 1);
+      $(this).val(date_formatter(itin_end_date));
+    } else if (itin_end_date < itin_start_date) {
+      // swap end date and start dates
+      var temp = itin_end_date;
+      $(this).val(date_formatter(itin_end_date=itin_start_date));
+      itin_start.val(date_formatter(itin_start_date=temp));
+      //TODO - cascade changes?
+    }
+
+    if (itin_end_date > last_day) {
+      $(this).val(date_formatter(itin_end_date=last_day))
+    }
+
+    var next_itin = $(this).parents('tr:first').next('.int-itinerary');
+    if (next_itin.length==0 && itin_end_date!=last_day) {
+      // add a new entry!
+      $("#id_itinerary_table tr:last").clone().appendTo("#id_itinerary_table");
+      var next_day = itin_end_date;
+      next_day.setDate(next_day.getDate() + 1);
+      $("#id_itinerary_table tr:last .itin-start").find('input').val(date_formatter(next_day));
+      $("#id_itinerary_table tr:last .itin-end").find('input').val(date_formatter(last_day));
     }
   });
 
