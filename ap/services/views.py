@@ -295,6 +295,7 @@ def changeWeek(request):
   user = request.user
   trainee = trainee_from_user(user)
   service_db = {}
+  designated_list = []
 
   if request.is_ajax():
     week_id = request.GET['week']    
@@ -308,53 +309,25 @@ def changeWeek(request):
     cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
 
-  print user, cws
-    # try:
-    #   trainee_weekly_reading = BibleReading.objects.get(trainee=my_user).weekly_reading_status[term_week_code]
-    #   json_weekly_reading = json.dumps(trainee_weekly_reading)
-    # except (BibleReading.DoesNotExist, KeyError):
-    #   trainee_weekly_reading = EMPTY_WEEK_CODE_QUERY
-    #   json_weekly_reading = json.dumps(trainee_weekly_reading)
+  # print trainee, cws
+
+  workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
+  worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
+    Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
+  
+  # Find services related to the user
+  for current_worker in worker_assignments:
+    trainee = str(trainee)
+    if trainee == current_worker.full_name:
+      for a in current_worker.week_assignments:
+        if a.service.category.name == "Designated Services":
+          designated_list.append(a.service)
+        else:
+          service_db.setdefault(a.service, a.service.weekday)
+
+  print trainee, service_db, designated_list
   
   return HttpResponse(service_db, content_type='application/json')
-#   if request.GET.get('week_schedule'):
-#     current_week = request.GET.get('week_schedule')
-#     current_week = int(current_week)
-#     current_week = current_week if current_week < LAST_WEEK else LAST_WEEK
-#     current_week = current_week if current_week > FIRST_WEEK else FIRST_WEEK
-#     cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
-#   else:
-#     ct = Term.current_term()
-#     current_week = ct.term_week_of_date(date.today())
-#     cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
-#   week_start, week_end = cws.week_range
-
-#   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
-
-#   if request.is_ajax():
-#     week_id = request.GET['week']
-#     worker = request.GET['worker']
-#     cws = request.GET['cws']
-
-#  service_db = {}
-#     designated_list = []
-
-#     worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
-#         Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
-        
-#     # Find services related to the user
-#     for current_worker in worker_assignments:
-#       if worker == current_worker:
-#         for a in current_worker.week_assignments:
-#           if a.service.category.name == "Designated Services":
-#             designated_list.append(a.service)
-#           else:
-#             service_db.setdefault(a.service, a.service.weekday)
-
-#     print worker, cws, list(service_db.values())
-#     print service_db, designated_list
-
-#      return HttpResponse(service_db, content_type='application/json')
 
 
 # API Views
