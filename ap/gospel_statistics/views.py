@@ -159,29 +159,10 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     weeks = request.POST.getlist('weeks')
     # 1 = Full Report, 2 = Week & Total, 3 = Total Only
     report_type = request.POST.get('report_type')
+    ctx['report_type']=int(report_type)
     save_type = request.POST.get('save_type')
 
     ## Generate Report here
-    # Full Report
-    if report_type == 1:
-      report += 'hi\n'
-    # Week
-    if report_type == 2:
-      report += 'bye\n'
-    # Total
-    if report_type == 3:
-      for team in teams:
-        for week in weeks:
-          gospelpairs = GospelPair.objects.filter(team=team)
-          stats = GospelStat.objects.filter(gospelpair__in=gospelpairs, week=week)
-          for stat in stats:
-          ## fix here
-            print stat.conference
-          '''
-            for each in _attributes:
-              eval('print stat.'+each)
-          '''
-
     team = teams[0]
     code = team.code
     gospelpairs = GospelPair.objects.filter(team=team, term=C_TERM)
@@ -226,8 +207,15 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
       for i in range(len(_attributes)):
         totals[i] += eval('stat.'+_attributes[i])
     total = [['All '+code+' GP Pair Totals Added Together']+totals]
+    all_pairs = GospelPair.objects.filter(term=C_TERM)
+    alls = GospelStat.objects.filter(gospelpair__in=all_pairs)
+    grand = [0 for i in range(len(_attributes))]
+    for each in alls:
+      for i in range(len(_attributes)):
+        grand[i] += eval('each.'+_attributes[i])
+    
+    total.append(['FTTA Grand Total (Campus/Community Teams)']+grand)
     ## Fix next three append
-    total.append(['FTTA Grand Total (Campus/Community Teams)']+[])
     total.append([code+' Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
     total.append(['FTTA Total Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
     total.append([code+' GP Pair Team Average']+["{0:.2f}".format(each/max(1,float(len(gospelpairs)))) for each in totals])
@@ -241,7 +229,6 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     
     #return super(GenerateReportView, self).render_to_response(ctx)
     ## Make it downloadable
-    print render(request, 'gospel_statistics/gospel_statistics_report_base.html', ctx)
     return render(request, 'gospel_statistics/gospel_statistics_report_base.html', ctx)
 
 class NewGospelPairView(TemplateView):
