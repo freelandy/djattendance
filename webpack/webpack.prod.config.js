@@ -36,7 +36,10 @@ var prodConfig = {
       compress: {
         screw_ie8: true
       },
-      comments: false
+      comments: false,
+      output: {
+        "ascii_only": true
+      }
     }),
     new ExtractTextPlugin({
       filename: '[name].css'

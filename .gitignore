@@ -10,6 +10,7 @@ venv
 *.sublime-workspace
 ap/media/
 *.log
+*.sql
 migrations/
 node_modules/
 ap/services/debug/data.js
@@ -19,3 +20,5 @@ webpack-stats.json
 import.log*
 selenium/automation/reports/
 .vscode/
+ap/templates/bundles/skins/
+*~

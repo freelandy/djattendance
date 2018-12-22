@@ -7,7 +7,7 @@ import { startOfWeek, endOfWeek, differenceInWeeks, addDays, getDay }from 'date-
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { lastLeaveslip, compareEvents, categorizeEventStatus, getPeriodFromDate, SLIP_STATUS_RANKINGS } from '../constants'
+import { lastLeaveslip, compareEvents, categorizeEventStatus, getPeriodFromDate, getWeekFromDate, SLIP_STATUS_RANKINGS } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -40,7 +40,6 @@ export const getDateDetails = createSelector(
   (date, term) => {
     let startDate = startOfWeek(date, {weekStartsOn: 1})
     let endDate = endOfWeek(date, {weekStartsOn: 1})
-    let period = getPeriodFromDate(term, date)
 
     let difference = differenceInWeeks(startDate, new Date(term.start));
     if (difference % 2 == 1) {
@@ -58,7 +57,7 @@ export const getDateDetails = createSelector(
     }
 
     return {
-      currentPeriod: getPeriodFromDate(term, new Date()) + 1,
+      week: getWeekFromDate(term, date),
       weekStart: isFirst ? firstStart : secondStart,
       weekEnd: isFirst ? firstEnd : secondEnd,
       isFirst: isFirst,
@@ -66,7 +65,7 @@ export const getDateDetails = createSelector(
       firstEnd: firstEnd,
       secondStart: secondStart,
       secondEnd: secondEnd,
-      period: period
+      period: getPeriodFromDate(term, date)
     }
   }
 )

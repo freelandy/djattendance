@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{% with gtpk=request.resolver_match.kwargs.pk %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $(".team_contact").on("click", function() {
+      $.ajax({
+        type: "POST",
+        url: "{% url 'gospel_trips:assign-team-contact' pk=gtpk %}",
+        data: {
+          'trainee_id': $(this).val(),
+          'is_contact': $(this).prop('checked')
+        },
+        success: function(data){
+          if (data.success){
+            new Notification(Notification.SUCCESS, 'Saved.').show();
+          } else if (data.noDest){
+            new Notification(Notification.ERRROR, 'Assign destination first.').show();
+          } else if (data.dataError){
+            new Notification(Notification.ERRROR, 'Data Error. Please contact AP.').show();
+          } else if (data.badRequest){
+            new Notification(Notification.ERRROR, 'Bad Request. Try again or contact AP.').show();
+          }
+        },
+      });
+    });
+
+    $(".destination_select").on("change", function() {
+      let name = $(this).attr('name').split('_');
+      let trainee_id = name[name.length - 1];
+      let is_contact = $('.team-contact, [value=' + trainee_id + ']').prop('checked');
+      $.ajax({
+        type: "POST",
+        url: "{% url 'gospel_trips:assign-destination' pk=gtpk %}",
+        data: {
+          'destination_id': $(this).val(),
+          'trainee_id': trainee_id,
+          'is_contact': is_contact,
+        },
+        success: function(data){
+          console.log(data);
+          if (data.success){
+            new Notification(Notification.SUCCESS, 'Saved.').show();
+          }
+        }
+      });
+    });
+
+    $("#responses_table").DataTable({
+      info: true,
+      paging: false,
+      autoWidth: true,
+      fixedHeader: true,
+      scrollY: '80vh',
+      scrollX: true,
+      scrollCollapse: true
+    });
+
+  });
+</script>
+{% endwith %}
+{% endblock scripts%}
+
+{% block content %}
+<h2>{{page_title}}</h2>
+<div class="panel">
+  <table class="table table-bordered" id="responses_table">
+    <thead>
+      <tr>
+        <th>Trainee</th>
+        <th>Term</th>
+        <th>Locality</th>
+        <th>Preference 1</th>
+        <th>Preference 2</th>
+        <th>Preference 3</th>
+        <th>Select Destination</th>
+        <th>Team Contact</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trainee in by_preference %}
+        <tr>
+          <td>{{trainee.name}}</td>
+          <td>{{trainee.term}}</td>
+          <td>{{trainee.locality}}</td>
+          <td>{{trainee.preference_1}}</td>
+          <td>{{trainee.preference_2}}</td>
+          <td>{{trainee.preference_3}}</td>
+          <td>
+            <select class="destination_select" name="destination_select_for_{{trainee.id}}">
+            {% for choice in destinations %}
+              <option {% if trainee.destination == choice.id %}selected="selected"{% endif %} value="{{choice.id}}">{{choice.name}}</option>
+            {% endfor %}
+          </select>
+          </td>
+          <td><input class="team_contact" type="checkbox" name="team_contact_selection" value="{{trainee.id}}" {% if trainee.team_contact %}checked="checked"{% endif %}></input></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

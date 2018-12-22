@@ -62,6 +62,8 @@ class AddExceptionForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(AddExceptionForm, self).__init__(*args, **kwargs)
+    self.fields['services'].widget.attrs['class'] = 'select-fk'
+    self.fields['service'].widget.attrs['class'] = 'select-fk'
 
   class Meta:
     model = ServiceException

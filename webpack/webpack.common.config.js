@@ -18,6 +18,9 @@ module.exports = {
     select_2: [
       '../ap/templates/bundles/select_2.js',
     ],
+    tinymce: [
+      '../ap/templates/bundles/tinymce.js',
+    ],
   },
 
   output: {

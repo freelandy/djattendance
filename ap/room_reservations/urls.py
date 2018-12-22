@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^weather$', views.weather_api, name='weather'),
     url(r'^tv_page_version$', views.tv_page_version, name='tv-page-version'),
     url(r'^tv_page_reservations$', views.tv_page_reservations, name='tv-page-reservations'),
+    url(r'^tv_page_ticker$', views.tv_page_ticker, name='tv-page-ticker'),
 ]

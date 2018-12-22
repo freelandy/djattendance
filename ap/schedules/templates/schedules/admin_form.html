@@ -7,14 +7,17 @@
 
 {% block scripts %}
 <script type="text/javascript">
-  $(document).ready(() => {
-    $('.select-fk').select2({width: '100%'});
-    $('[multiple*=multiple]').select2({width: '100%'})
+  $(document).ready(function(){
+    $('.select-fk').select2({width: "100%"});
+    $('[multiple*=multiple]').select2({width: "100%"})
     $("#id_split_button").click(split_schedule);
+    {% if assign_trainees_button %}
+    $("#id_assign_trainees").click(assign_trainees);
+    {% endif %}
   });
 
   function split_schedule(e){
-    split_url = "{{form.instance.get_split__partial_url}}"
+    let split_url = "{{form.instance.get_split__partial_url}}";
     e.preventDefault();
       $.ajax({
         type: "POST",
@@ -29,6 +32,25 @@
         }
     });
   }
+
+{% if assign_trainees_button %}
+  function assign_trainees(e){
+    let assign_url = "{{form.instance.get_assign_url}}";
+    e.preventDefault();
+      $.ajax({
+        type: "POST",
+        url: assign_url,
+        success: function(result) {
+          if(result.success){
+            window.location = window.location;
+          }
+        },
+        error: function(result) {
+            alert('Something went wrong.');
+        }
+    });
+  }
+{% endif %}
  </script>
 {% endblock %}
 
@@ -51,9 +73,11 @@
 <!-- /Error messaging -->
 {% endif %}
 
+<a href="{% url 'schedules:admin-schedule-table' %}">Back To Table</a>
+
 <form id="id_form" action="" method="post">
   {% csrf_token %}
-  {% bootstrap_form form %}  
+  {% bootstrap_form form %}
   <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
 </form>
 {% if delete_button %}
@@ -61,6 +85,9 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-danger btn-delete" name="delete">Delete</button>
   </form>
+{% endif %}
+{% if assign_trainees_button %}
+  <button type="button" class="btn btn-primary btn-save" name="assign" id="id_assign_trainees">Assign Trainees</button><br>
 {% endif %}
 {% if split_button %}
 <label for="id_week_select">Week</label>

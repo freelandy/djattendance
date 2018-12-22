@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $(".team_contact").on("click", function() {
+      $.ajax({
+        type: "POST",
+        url: "{% url 'gospel_trips:assign-team-contact' pk=request.resolver_match.kwargs.pk %}",
+        data: {
+          'trainee_id': $(this).val(),
+          'is_contact': $(this).prop('checked')
+        },
+        success: function(data){
+          if (data.success){
+            new Notification(Notification.SUCCESS, 'Saved.').show();
+          } else if (data.noDest){
+            new Notification(Notification.ERRROR, 'Assign destination first.').show();
+          } else if (data.dataError){
+            new Notification(Notification.ERRROR, 'Data Error. Please contact AP.').show();
+          } else if (data.badRequest){
+            new Notification(Notification.ERRROR, 'Bad Request. Try again or contact AP.').show();
+          }
+        }
+      });
+    });
+    if ($("#trainee_table")) {
+      $("#trainee_table").DataTable({
+        info: true,
+        paging: false,
+        autoWidth: true,
+      });
+    }
+  });
+
+</script>
+{% endblock scripts%}
+
+{% block content %}
+<h2>{{page_title}}</h2>
+<div class="panel">
+  <table class="table table-bordered" id="destination_table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Destination</th>
+        <th>Trainee Contact</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trainee in destination.trainees.all %}
+      <tr>
+        <td>{{trainee.full_name}}</td>
+        <td>{{destination.name}}</td>
+        <td>{% if trainee in destination.team_contacts.all %} <i class="glyphicon glyphicon-check"></i> {% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if trainees %}
+<div class="panel">
+  <table class="table table-bordered" id="trainee_table">
+    <thead>
+      <tr>
+        <th>Trainee</th>
+        <th>Destination</th>
+        <th>Trainee Contact</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trainee in trainees %}
+        <tr>
+          <td>{{trainee.name}}</td>
+          <td>{{trainee.destination.name}}</td>
+          <td><input class="team_contact" type="checkbox" name="team_contact_selection" value="{{trainee.id}}" {% if trainee.team_contact %}checked="checked"{% endif %}></input></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

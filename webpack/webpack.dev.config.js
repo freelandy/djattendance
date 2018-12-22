@@ -24,6 +24,10 @@ var devConfig = {
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
     ],
+    tinymce: [
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
+    ],
   },
 
   output: {

@@ -137,12 +137,18 @@ class IndividualSlipManager(models.Manager):
       return queryset
 
 
+class IndividualSlipAllManager(models.Manager):
+  def get_queryset(self):
+    return super(IndividualSlipAllManager, self).get_queryset()
+
+
 class IndividualSlip(LeaveSlip):
 
   class Meta:
     verbose_name = 'personal slip'
 
   objects = IndividualSlipManager()
+  objects_all = IndividualSlipAllManager()
 
   rolls = models.ManyToManyField(Roll, related_name='leaveslips')
   # these fields are for meals and nights out

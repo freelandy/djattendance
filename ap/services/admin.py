@@ -321,7 +321,7 @@ class ExceptionAdmin(admin.ModelAdmin):
   ordering = ('active', 'name')
 
   # filter_horizontal = ('workers', 'services')
-  search_fields = ('name', 'desc',)
+  search_fields = ('name', 'desc', 'workers__trainee__firstname', 'workers__trainee__lastname',)
   list_filter = ('active', 'tag', 'start', 'end')
   # inlines = [
   #   ServiceInline,

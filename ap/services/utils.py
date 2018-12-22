@@ -1,24 +1,19 @@
-from collections import OrderedDict, Counter
+from collections import Counter, OrderedDict
 from datetime import datetime
 from itertools import combinations
-from sets import Set
-
-from django.db.models import Q, Count
-from django.template.defaulttags import register
 
 from accounts.models import User
 from aputils.utils import memoize, timeit
+from django.db.models import Q, Count
+from django.template.defaulttags import register
 from leaveslips.models import GroupSlip
+from sets import Set
 
+from .constants import (MAX_PREPS_PER_WEEK, MAX_SERVICE_CATEGORY_PER_WEEK,
+                        MAX_SERVICES_PER_DAY, PREP)
 from .models import (Assignment, Prefetch, SeasonalServiceSchedule, Service,
                      ServiceException, ServiceSlot, Sum, WorkerGroup)
 from .service_scheduler import ServiceScheduler
-from .constants import (
-      MAX_PREPS_PER_WEEK,
-      MAX_SERVICE_CATEGORY_PER_WEEK,
-      MAX_SERVICES_PER_DAY,
-      PREP,
-)
 
 
 '''
@@ -393,6 +388,7 @@ class ServiceCheck(object):
     self.func = func
     self.limit = limit
     self.name = name
+    self.html_id = name.replace(' ', '').replace('/', '').replace('>', '')
 
   def check(self, assignments):
     assignment_acc = [
@@ -407,16 +403,20 @@ class ServiceCheck(object):
         over_limit = True
     return over_limit
 
+
 def assignment_day(assignment):
-  return assignment.service.day
+  return assignment.service.weekday
+
 
 def assignment_cat(assignment):
   cat = assignment.service.category
   return cat if not assignment.service.designated else None
 
+
 def assignment_prep(assignment):
   service = assignment.service
-  return PREP if PREP in service.name and not "Breakfast" in service.name else None
+  return PREP if PREP in service.name and "Breakfast" not in service.name else None
+
 
 SERVICE_CHECKS = [
     ServiceCheck(assignment_day, MAX_SERVICES_PER_DAY, '> {0} service/day'.format(MAX_SERVICES_PER_DAY)),

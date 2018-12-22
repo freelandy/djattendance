@@ -5,7 +5,7 @@ import Select from 'react-select';
 
 import SlipStatusIcon from './SlipStatusIcon'
 
-const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period, currentPeriod, showLegend,
+const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period, showLegend,
                     onPrevWeek, onNextWeek, traineeView, disablePeriodSelect, selectPeriod, toggleLegend}) =>
 {
   let periodChoices = Array.from(Array(10).keys()).map(c => { return {value: c, label: c}})

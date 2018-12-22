@@ -14,8 +14,15 @@ $().ready(function (){
   Countable.live(content.get(0), function(counter){
     var span = $('#count').get(0);
     span.innerHTML = counter.words;
-    var hasEnoughWords = counter.words > minCount ? true : false;
-    $("#summary_submit").get(0).disabled = !hasEnoughWords;
-    $("#wc-warning").css('display', hasEnoughWords ? 'none' : 'block');
+    $("#summary_submit").get(0).disabled = counter.words >= minCount ? false : true;
   })
+  
+  $("#id_submitting_paper_copy").click(function(){
+    if (!$("#id_submitting_paper_copy").prop("checked")){
+      $("#summary_submit").get(0).setAttribute("disabled", true);
+    }else{
+      $("#summary_submit").get(0).removeAttribute("disabled");
+    }
+
+  });
 });
