@@ -252,7 +252,7 @@ def generate_signin(request, k=False, r=False, o=False):
       kitchen.append(merge_assigns(assigns))
     # Add empty dicts until len(kitchen) is a multiple of 4 so zip() doesn't cut off any service printouts
     if (len(kitchen) % 4) != 0:
-      for i in range(0,4-(len(kitchen)%4)):
+      for i in range(0, 4 - (len(kitchen) % 4)):
         kitchen.append([])
     kitchen = zip(kitchen[::4], kitchen[1::4], kitchen[2::4], kitchen[3::4])
     ctx['kitchen'] = kitchen
@@ -286,8 +286,8 @@ def generate_signin(request, k=False, r=False, o=False):
     # Add empty tuples of (None,[]) (DUMMY VALUE) until len(items) is a multiple of 2 so no service printouts get cut off
     items = sorted(lunches.items(), key=lambda i: (i[0] + 6) % 7)
     if (len(items) % 2) != 0:
-      for i in range(0,2-(len(items)%2)):
-        items.append((None,[]))
+      for i in range(0, 2 - (len(items) % 2)):
+        items.append((None, []))
     for i, item in enumerate(items[::2]):
       index = i * 2
       if len(items) == 1:

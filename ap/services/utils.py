@@ -1,23 +1,24 @@
-from collections import Counter, OrderedDict
 import datetime
+from collections import Counter, OrderedDict
 from datetime import date, timedelta
 from itertools import combinations
 
 from accounts.models import User
+from aputils.trainee_utils import is_trainee, trainee_from_user
 from aputils.utils import memoize, timeit
 from django.db.models import Q, Count
 from django.template.defaulttags import register
 from leaveslips.models import GroupSlip
 from sets import Set
+from terms.models import Term
 
 from .constants import (MAX_PREPS_PER_WEEK, MAX_SERVICE_CATEGORY_PER_WEEK,
                         MAX_SERVICES_PER_DAY, PREP)
 from .models import (Assignment, Prefetch, SeasonalServiceSchedule, Service,
-                     ServiceException, ServiceAttendance, ServiceSlot, Sum, WorkerGroup)
+                     ServiceAttendance, ServiceException, ServiceSlot, Sum,
+                     WorkerGroup)
 from .service_scheduler import ServiceScheduler
 
-from aputils.trainee_utils import is_trainee, trainee_from_user
-from terms.models import Term
 
 '''
 Pseudo-code for algo
