@@ -1,26 +1,21 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db.models import F, Q, Count
-# from accounts.models import Trainee
-from datetime import date
-from dailybread.models import Portion
-from django.http import HttpResponse
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from announcements.notifications import get_announcements, get_popups
-from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
-from bible_tracker.models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_STR
-from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
-from terms.models import FIRST_WEEK, LAST_WEEK, Term
-from house_requests.models import MaintenanceRequest
-from django.core.urlresolvers import reverse_lazy
-from services.models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
-                      Service, ServiceSlot, WeekSchedule, Worker)
-
 import json
+from datetime import date
 
+from announcements.notifications import get_announcements, get_popups
+from aputils.trainee_utils import is_TA, is_trainee, trainee_from_user
 from aputils.utils import WEEKDAY_CODES
-from services.utils import (SERVICE_CHECKS)
+from bible_tracker.models import (EMPTY_WEEKLY_STATUS, UNFINALIZED_STR,
+                                  BibleReading)
+from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
+from dailybread.models import Portion
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.http import HttpResponse
+from django.shortcuts import render
+from house_requests.models import MaintenanceRequest
+from services.models import Assignment, Prefetch, WeekSchedule, Worker
+from terms.models import FIRST_WEEK, LAST_WEEK, Term
 
 
 @login_required
@@ -52,12 +47,12 @@ def home(request):
       # Do not set as user input.
       current_week = Term.current_term().term_week_of_date(date.today())
       cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
-    
+
     # try:
     #   # Do not set as user input.
     #   current_week = Term.current_term().term_week_of_date(date.today())
     #   cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
-      
+
     # except ValueError:
     #   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
 
@@ -82,7 +77,7 @@ def home(request):
 
     worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
         Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
-        
+
     # Find services related to the user
     for current_worker in worker_assignments:
       if worker == current_worker:
@@ -106,7 +101,7 @@ def home(request):
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
-      'weekday_codes':json.dumps(WEEKDAY_CODES),
+      'weekday_codes': json.dumps(WEEKDAY_CODES),
       'service': service_db,
       'service_day': list(service_db.values()),
       'service_name': list(service_db),
@@ -144,7 +139,7 @@ def custom404errorview(request):
   }
   return render(request, 'error.html', context=ctx)
 
-    
+
 def custom500errorview(request):
   ctx = {
     'image_path': 'img/500error.png',
@@ -168,6 +163,7 @@ def custom503errorview(request):
   }
   return render(request, 'error.html', context=ctx)
 
+
 def custom504errorview(request):
   ctx = {
     'image_path': 'img/504error.png',
@@ -175,9 +171,10 @@ def custom504errorview(request):
   }
   return render(request, 'error.html', context=ctx)
 
+
 def printerinstructions(request):
   ctx = {
-    'image_path' : 'img/printer.jpg',
-    'page_title' : 'Printer Instructions',
+    'image_path': 'img/printer.jpg',
+    'page_title': 'Printer Instructions',
   }
   return render(request, 'printer.html', context=ctx)
