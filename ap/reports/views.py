@@ -278,11 +278,10 @@ def attendance_report_trainee(request):
   # exclude absent rolls excused by individual slips
   # missed_classes = missed_classes.exclude(leaveslips__status='A')
 
-  IGNORE_LS_TYPES = ['SERV', 'CONF', 'TTRIP', 'FWSHP']  # leave slips types that don't affect attendance
-  missed_classes = missed_classes.filter(~(Q(leaveslips__type__in=IGNORE_LS_TYPES) & Q(leaveslips__status='A')))
+  missed_classes = missed_classes.filter(~(Q(leaveslips__does_not_count=True) & Q(leaveslips__status='A')))
 
   # exclude absent rolls excused by group slips
-  missed_classes = rolls_excused_by_groupslips(missed_classes, group_slips.filter(type__in=IGNORE_LS_TYPES))
+  missed_classes = rolls_excused_by_groupslips(missed_classes, group_slips.filter(does_not_count=True))
 
   res["classes_missed_percentage"] = str(round(missed_classes.count() / float(possible_class_rolls_count) * 100, 2)) + "%"
 
