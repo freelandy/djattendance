@@ -47,8 +47,7 @@
       if (colCount < 8){
         while(colCount < 8){
           cell = row.insertCell(colCount);
-          
-          for (serviceIndex=0, len = days.length; serviceIndex<len; serviceIndex++) {
+          for (serviceIndex = 0, len = days.length; serviceIndex<len; serviceIndex++) {
             if (colIndex == days[serviceIndex]){
               cell.innerHTML = htmlInitInsert + services[serviceIndex] + htmlLastInsert;
             }
