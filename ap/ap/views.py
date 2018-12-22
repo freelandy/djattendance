@@ -14,7 +14,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import HttpResponse
 from django.shortcuts import render
 from house_requests.models import MaintenanceRequest
-from services.models import Assignment, Prefetch, WeekSchedule, Worker
+from services.models import WeekSchedule, Worker
 from terms.models import FIRST_WEEK, LAST_WEEK, Term
 
 
@@ -22,13 +22,15 @@ from terms.models import FIRST_WEEK, LAST_WEEK, Term
 def home(request):
   user = request.user
   trainee = trainee_from_user(user)
+  worker = None
 
   # Set default values
   current_week = 19
   weekly_status = EMPTY_WEEKLY_STATUS
   finalized_str = UNFINALIZED_STR
-  service_db = {}
   designated_list = []
+  assigned_list = []
+  service_day = []
 
   # Default for Daily Bible Reading
   current_term = Term.current_term()
@@ -75,21 +77,14 @@ def home(request):
       weekly_status = str(json_weekly_reading['status'])
       finalized_str = str(json_weekly_reading['finalized'])
 
-    worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
-        Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
+    worker_assignments = worker.assignments.filter(week_schedule=cws)
+    designated_list = list(worker_assignments.filter(service__category__name="Designated Services").values_list('service__name', flat=True))
+    assigned_list = list(worker_assignments.exclude(service__category__name="Designated Services").values_list('service__name', flat=True))
+    service_day = list(worker_assignments.exclude(service__category__name="Designated Services").values_list('service__weekday', flat=True))
 
-    # Find services related to the user
-    for current_worker in worker_assignments:
-      if worker == current_worker:
-        for a in current_worker.week_assignments:
-          if a.service.category.name == "Designated Services":
-            designated_list.append(a.service)
-          else:
-            # service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
-            service_db.setdefault(a.service, a.service.weekday)
-
-    print worker, cws, list(service_db.values())
-    print service_db, designated_list
+    print designated_list
+    print assigned_list
+    print service_day
 
   data = {
       'daily_nourishment': Portion.today(),
@@ -102,9 +97,8 @@ def home(request):
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
       'weekday_codes': json.dumps(WEEKDAY_CODES),
-      'service': service_db,
-      'service_day': list(service_db.values()),
-      'service_name': list(service_db),
+      'service_day': service_day,
+      'assigned_list': assigned_list,
       'designated_list': designated_list,
   }
 
