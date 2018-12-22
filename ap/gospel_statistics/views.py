@@ -223,7 +223,7 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
       for each in alls:
         for i in range(len(_attributes)):
           grand[i] += eval('each.'+_attributes[i])
-      
+
       total.append(['FTTA Grand Total (Campus/Community Teams)']+grand)
       ## Fix next two append
       #total.append([code+' Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
