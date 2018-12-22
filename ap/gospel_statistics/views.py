@@ -7,6 +7,7 @@ from accounts.models import Trainee
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
+from django.http import HttpResponse
 from terms.models import Term
 from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
@@ -15,7 +16,10 @@ from .models import GospelPair, GospelStat
 from teams.models import Team
 
 # Import for generate
+import os
 from aputils.utils import render_to_pdf
+from zipfile import ZipFile
+from StringIO import StringIO
 
 # ctx[cols] = attributes
 attributes = [
@@ -158,78 +162,102 @@ class GenerateReportView(GroupRequiredMixin, TemplateView):
     weeks = []
     weeks = request.POST.getlist('weeks')
     # 1 = Full Report, 2 = Week & Total, 3 = Total Only
-    report_type = request.POST.get('report_type')
-    ctx['report_type']=int(report_type)
+    report_type = int(request.POST.get('report_type'))
+    ctx['reporttype']=report_type
     save_type = request.POST.get('save_type')
+    if len(teams) < 1:
+      return render(request, "gospel_statistics/generate_report.html", self.get_context_data())
 
     ## Generate Report here
-    team = teams[0]
-    code = team.code
-    gospelpairs = GospelPair.objects.filter(team=team, term=C_TERM)
-    ## Each Pair
-    pairs = []
-    for pair in gospelpairs:
-      pair_total = [0 for i in range(len(_attributes))]
-      names = ''
-      for trainee in pair.trainees.all():
-        if len(names) > 0:
-          names += ', '
-        names += trainee.firstname+' '+trainee.lastname
-      one_pair = [[names]+attributes]
-      for week in weeks:
-        one = GospelStat.objects.filter(gospelpair=pair, week=week)[0]
-        one_pair.append(['Week '+week]+[eval('one.'+att) for att in _attributes])
+    in_memory = StringIO()
+    zfile = ZipFile(in_memory, "a")
+    for team in teams:
+      code = team.code
+      gospelpairs = GospelPair.objects.filter(team=team, term=C_TERM)
+      if report_type < 2:
+        # Each Pair
+        pairs = []
+        for pair in gospelpairs:
+          pair_total = [0 for i in range(len(_attributes))]
+          names = ''
+          for trainee in pair.trainees.all():
+            if len(names) > 0:
+              names += ', '
+            names += trainee.firstname+' '+trainee.lastname
+          one_pair = [[names]+attributes]
+          for week in weeks:
+            one = GospelStat.objects.filter(gospelpair=pair, week=week)[0]
+            one_pair.append(['Week '+week]+[eval('one.'+att) for att in _attributes])
+            for i in range(len(_attributes)):
+              pair_total[i]+=eval('one.'+_attributes[i])
+          one_pair.append(['GP Total']+pair_total)
+          pairs.append(one_pair)
+        ctx['pairs'] = pairs
+  
+      if report_type < 3:
+        # Weekly
+        weekly = []
+        weekly_total = ['Weekly Total']+[0 for i in range(len(_attributes))]
+        for week in weeks:
+          one_week = GospelStat.objects.filter(gospelpair__in=gospelpairs, week=week)
+          weeklys = ['Week '+week]+[0 for i in range(len(_attributes))]
+          for every in one_week:
+            for i in range(len(_attributes)):
+              val = eval('every.'+_attributes[i])
+              weeklys[i+1] += val
+              weekly_total[i+1] += val
+          weekly.append(weeklys)
+        weekly.append(weekly_total)
+        ctx['weekly'] = weekly
+      
+      # Total
+      stats = GospelStat.objects.filter(gospelpair__in=gospelpairs)
+      totals = [0 for i in range(len(_attributes))]
+      for stat in stats:
         for i in range(len(_attributes)):
-          pair_total[i]+=eval('one.'+_attributes[i])
-      one_pair.append(['GP Total']+pair_total)
-      pairs.append(one_pair)
-    ctx['pairs'] = pairs
-
-    ## Weekly
-    weekly = []
-    weekly_total = ['Weekly Total']+[0 for i in range(len(_attributes))]
-    for week in weeks:
-      one_week = GospelStat.objects.filter(gospelpair__in=gospelpairs, week=week)
-      weeklys = ['Week '+week]+[0 for i in range(len(_attributes))]
-      for every in one_week:
+          totals[i] += eval('stat.'+_attributes[i])
+      total = [['All '+code+' GP Pair Totals Added Together']+totals]
+      all_pairs = GospelPair.objects.filter(term=C_TERM)
+      alls = GospelStat.objects.filter(gospelpair__in=all_pairs)
+      grand = [0 for i in range(len(_attributes))]
+      for each in alls:
         for i in range(len(_attributes)):
-          val = eval('every.'+_attributes[i])
-          weeklys[i+1] += val
-          weekly_total[i+1] += val
-      weekly.append(weeklys)
-    weekly.append(weekly_total)
-    ctx['weekly'] = weekly
+          grand[i] += eval('each.'+_attributes[i])
+      
+      total.append(['FTTA Grand Total (Campus/Community Teams)']+grand)
+      ## Fix next two append
+      #total.append([code+' Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
+      #total.append(['FTTA Total Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
+      total.append([code+' GP Pair Team Average']+["{0:.2f}".format(each/max(1,float(len(gospelpairs)))) for each in totals])
+      ctx['total'] = total
+      ctx['page_title'] = 'Gospel Statistics Report'
+      ctx['attributes'] = attributes
+      ctx['weeks'] = [i for i in range(20)]
+      ctx['team'] = team.name
+      ctx['term'] = C_TERM
+      ctx['stats'] = GospelStat.objects.filter(gospelpair__in=gospelpairs)
+      ## Make it downloadable
+      #return render(request, 'gospel_statistics/gospel_statistics_report_base.html', ctx)
+      pdf_file = render_to_pdf('gospel_statistics/gospel_statistics_report_base.html', ctx)
+      path = team.name+'.pdf'
 
-    ## Total
-    stats = GospelStat.objects.filter(gospelpair__in=gospelpairs)
-    totals = [0 for i in range(len(_attributes))]
-    for stat in stats:
-      for i in range(len(_attributes)):
-        totals[i] += eval('stat.'+_attributes[i])
-    total = [['All '+code+' GP Pair Totals Added Together']+totals]
-    all_pairs = GospelPair.objects.filter(term=C_TERM)
-    alls = GospelStat.objects.filter(gospelpair__in=all_pairs)
-    grand = [0 for i in range(len(_attributes))]
-    for each in alls:
-      for i in range(len(_attributes)):
-        grand[i] += eval('each.'+_attributes[i])
-    
-    total.append(['FTTA Grand Total (Campus/Community Teams)']+grand)
-    ## Fix next three append
-    total.append([code+' Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
-    total.append(['FTTA Total Average Across Weeks ('+str(len(weeks))+' Week Range)']+[])
-    total.append([code+' GP Pair Team Average']+["{0:.2f}".format(each/max(1,float(len(gospelpairs)))) for each in totals])
-    ctx['total'] = total
-    ctx['page_title'] = 'Gospel Statistics Report'
-    ctx['attributes'] = attributes
-    ctx['weeks'] = [i for i in range(20)]
-    ctx['team'] = team.name
-    ctx['term'] = C_TERM
-    ctx['stats'] = GospelStat.objects.filter(gospelpair__in=gospelpairs)
-    
-    #return super(GenerateReportView, self).render_to_response(ctx)
-    ## Make it downloadable
-    return render(request, 'gospel_statistics/gospel_statistics_report_base.html', ctx)
+      with open(path, 'w+') as f:
+        f.write(pdf_file.content)
+      zfile.write(path)
+      os.remove(path)
+
+    # fix for Linux zip files read in Windows
+    for zf in zfile.filelist:
+      zf.create_system = 0
+
+    zfile.close()
+    response = HttpResponse(content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename=Gospel_Statistics_Report.zip'
+    in_memory.seek(0)
+    response.write(in_memory.read())
+
+    return response
+    #return render(request, "gospel_statistics/generate_report.html", self.get_context_data())
 
 class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
