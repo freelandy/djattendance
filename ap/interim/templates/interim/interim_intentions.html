@@ -70,21 +70,17 @@ $(document).ready(() => {
     last_day.setDate(last_day.getDate());
     $("#id_end").val(date_formatter(last_day));
   }
-  $("#row_0 .itin-start input").prop( "readonly", true );
-  $("#row_0 .itin-start input").addClass('readonly');
+  $("#row_0 #id_start").prop( "readonly", true );
+  $("#row_0 #id_start").addClass('readonly');
 
-  $(".int-itinerary .itin-start").find('input').change(function() {
-    alert("Hello");
-  });
-
-  $(".int-itinerary .itin-end").find('input').change(function() {
-    // itin_end = $(this)
-    var itin_start = $(this).parents('tr:first').find('.itin-start input');
+  $("#id_end").off('change').on('change', function(e) {
+    alert($(this).val());
+    /* itin_end = $(this) */
+    var itin_start = $(this).parents('tr:first').find('#id_start');
     var itin_end_date = new Date($(this).val());
     var itin_start_date = new Date(itin_start.val());
 
     if (itin_end_date < itin_start_date && itin_start.prop('readonly') || itin_end_date == itin_start_date) {
-      // new end date will be start date + 1
       itin_end_date.setDate(itin_start_date.getDate() + 1);
       $(this).val(date_formatter(itin_end_date));
     } else if (itin_end_date < itin_start_date) {
@@ -105,8 +101,14 @@ $(document).ready(() => {
       $("#id_itinerary_table tr:last").clone().appendTo("#id_itinerary_table");
       var next_day = itin_end_date;
       next_day.setDate(next_day.getDate() + 1);
-      $("#id_itinerary_table tr:last .itin-start").find('input').val(date_formatter(next_day));
-      $("#id_itinerary_table tr:last .itin-end").find('input').val(date_formatter(last_day));
+      $("#id_itinerary_table tr:last #id_start").find('input').val(date_formatter(next_day));
+      $("#id_itinerary_table tr:last #id_end").find('input').val(date_formatter(last_day));
+
+      $("#id_itinerary_table tr:last #id_start").prop( "readonly", false );
+      $("#id_itinerary_table tr:last #id_start").removeClass("readonly");
+      $($("#id_itinerary_table #id_start")[1]).datetimepicker(dt_options);
+      $($("#id_itinerary_table #id_end")[1]).datetimepicker(dt_options);
+
     }
   });
 
@@ -270,17 +272,18 @@ function delete_row(){
           </tr>
           {% for itin_form in itinerary_forms %}
           <tr class="int-itinerary" id="row_{{forloop.counter0}}">
-            <td class="itin-start">{{itin_form.start}}</td>
-            <td class="itin-end">{{itin_form.end}}</td>
+            <td class="test">{{itin_form.start}}</td>
+            <td>{{itin_form.end}}</td>
             <td>{{itin_form.comments}}</td>
           </tr>
           {% endfor %}
         </table>
       </div>
       <div class="col-md-12">
-        <button type="button" class="btn btn-primary" id="delete_row">Delete</button>
+        <!-- <button type="button" class="btn btn-primary" id="delete_row">Delete</button> -->
       </div>
     </div>
+    <p>Note: if you set a date after the last date of the interim (auto-filled) the last row will be removed. Date changes will be automatically sorted. Additional rows will be added each time the end date is changed.</p>
   </div>
   <div class="panel">
     <h4>{{form.intent.label}}:</h4>
