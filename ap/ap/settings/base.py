@@ -114,6 +114,7 @@ MIDDLEWARE = (
     # AP middleware
     'ap.middleware.LoginRequiredMiddleware',
     'bible_tracker.middleware.BibleReadingMiddleware',
+    'services.middleware.DesignatedServiceHoursMiddleware'
 )
 
 ROOT_URLCONF = 'ap.urls'
