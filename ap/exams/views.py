@@ -247,22 +247,14 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
 
         sessions = trainee.current_sessions
         # Save grades for trainees who use paper submission
-        try: # Session needs to be unique. If the session already exists, it will modify the existing session.
-          session = Session.objects.get(exam=exam, trainee=trainee)
-          session.is_submitted_online=False
-          session.time_finalized=datetime.now()
-          session.is_graded=True
-          session.grade=float(grades[index])
-          session.save()
-        except Session.DoesNotExist:
-          session = Session(
-              exam=exam,
-              trainee=trainee,
-              is_submitted_online=False,
-              time_finalized=datetime.now(),
-              is_graded=True,
-              grade=float(grades[index]))
-          session.save()
+        session = Session(
+            exam=exam,
+            trainee=trainee,
+            is_submitted_online=False,
+            time_finalized=datetime.now(),
+            is_graded=True,
+            grade=float(grades[index]))
+        session.save()
 
       grades2 = P.getlist('session-id-grade')
       session_ids = P.getlist('session-id')
