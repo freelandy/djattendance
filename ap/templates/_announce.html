@@ -1,8 +1,7 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
-
-{% if messages %}
 <div class="container-fluid announce">
+{% if messages %}
   <div class="announce__header" data-toggle="collapse" data-target="#announce__portal" aria-expanded="false" aria-controls="announcements_portal">
     <img class="announce__header__badge-background" src="{% static 'img/bell.png' %}">
     <span class="announce__header__badge">{{ messages|length }}</span>
@@ -15,5 +14,5 @@
     </div>
     {% endfor %}
   </div>
-</div>
 {% endif %}
+</div>

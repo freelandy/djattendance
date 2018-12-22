@@ -9,23 +9,58 @@
 <style>
   #submit{
     display: inline-block;
-    float: left;
+    float: right;
   }
 
   #delete_row{
     display: inline-block;
-    float: right;
+    float: left;
   }
 
   #add_row{
     display: inline-block;
-    float: right;
+    float: left;
   }
 
   #errors .inner{
     color: red;
   }
+  #narrow_content{
+    max-width: 1000px;
+    align-content: center;
+    margin:0 auto;
+    margin-bottom: 30px;
+  }
+  .blue_container {
+    background-color: #266483;
+  }
+  .week {
+    padding: 10px;
 
+  }
+  #id_week{
+    
+    
+  }
+
+  td {
+    text-align: left;
+    padding: 0px;
+  }
+  .form-control {
+    height: 32px;
+    padding: 4px 4px;
+    width: auto;
+    border:1px solid #a6c5d1 ;
+  }
+  label.control-label {
+    font-family: 'Yantramanav Medium';
+    text-transform: uppercase;
+    font-size: 20px;
+    color: #a6c5d1;
+    font-weight: 500;
+  }
+  
 </style>
 {% endblock%}
 
@@ -94,7 +129,8 @@ $(document).ready(() => {
 {% endblock %}
 
 {% block content %}
-<h2>{{ page_title }}</h2>
+<div id="narrow_content">
+<h1>{{ page_title }}</h1>
 
 {% if form.errors %}
 <!-- Error messaging -->
@@ -133,18 +169,24 @@ $(document).ready(() => {
 Also, posting hours again overwrites the old submission so you can post more than once.
 Note: 12:00 AM will be interpreted as 00:00 in 24 hour time. Rows with blank hours and no tasks performed will be deleted on save.</p>
 
-<br><br>
+<br>
 
 <form id="id_service_hours_form" method="post" action="">
+  <div class="blue_container">
+  <div class="week">
+    {% bootstrap_field form.week %}
+  </div>
+</div>
+</br>
   {% bootstrap_field form.designated_service %}
-  {% bootstrap_field form.week %}
   {% csrf_token %}
-  <table class="table table-bordered" id="id_service_hours_table">
+  
+  <table class="table no-border" id="id_service_hours_table">
     <tr>
-      <th>Start</th>
-      <th>End</th>
-      <th>Task Performed</th>
-      <th>Work Hours</th>
+      <td><h5>Start</h5></td>
+      <td><h5>End</h5></td>
+      <td><h5>Task Performed</h5></td>
+      <td><h5>Hours</h5></td>
     </tr>
     {% for service_roll_form in service_roll_forms %}
     <tr id="row_{{forloop.counter0}}">
@@ -160,4 +202,7 @@ Note: 12:00 AM will be interpreted as 00:00 in 24 hour time. Rows with blank hou
   </form>
   <button class="btn btn-primary" id="delete_row">Delete</button>
   <button class="btn btn-primary" id="add_row">Add</button>
+
+</div>
+</br>
 {% endblock %}
