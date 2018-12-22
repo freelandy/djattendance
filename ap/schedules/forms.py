@@ -111,12 +111,11 @@ class UpdateScheduleForm(BaseScheduleForm):
     cleaned_data = self.cleaned_data
 
     if 'Update' in self.data:
-
       if 'weeks' in self.changed_data:
         changed_weeks = cleaned_data['weeks'].split(',')
-        initial_weeks = self.initial['weeks']
-        min_val = min(changed_weeks[0], initial_weeks[0])
-        max_val = max(changed_weeks[-1], initial_weeks[-1]) + 1
+        initial_weeks = self.initial['weeks'].split(',')
+        min_val = int(min(changed_weeks[0], initial_weeks[0]))
+        max_val = int(max(changed_weeks[-1], initial_weeks[-1])) + 1
         weeks = range(min_val, max_val)
       else:
         weeks = [int(s) for s in cleaned_data['weeks'].split(',')]
