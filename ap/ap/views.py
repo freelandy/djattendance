@@ -90,23 +90,11 @@ def home(request):
           if a.service.category.name == "Designated Services":
             designated_list.append(a.service)
           else:
+            # service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
             service_db.setdefault(a.service, a.service.weekday)
 
     print worker, cws, list(service_db.values())
     print service_db, designated_list
-
-  categories = Category.objects.prefetch_related(
-      Prefetch('services', queryset=Service.objects.order_by('weekday', 'start')),
-      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(assignments__week_schedule=cws).annotate(workers_count=Count('assignments__workers')).order_by('-worker_group__assign_priority')),
-      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(~Q(Q(assignments__isnull=False) & Q(assignments__week_schedule=cws))).filter(workers_required__gt=0), to_attr='unassigned_slots'),
-      Prefetch('services__serviceslot_set__assignments', queryset=Assignment.objects.filter(week_schedule=cws)),
-      Prefetch('services__serviceslot_set__assignments__workers', queryset=Worker.objects.select_related('trainee').order_by('trainee__gender', 'trainee__firstname', 'trainee__lastname'))
-  ).distinct()
-
-  service_categories = Category.objects.filter(services__designated=False).prefetch_related(
-      Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday', 'start')),
-      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
-  ).distinct()
 
   data = {
       'daily_nourishment': Portion.today(),
@@ -119,7 +107,6 @@ def home(request):
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
       'weekday_codes':json.dumps(WEEKDAY_CODES),
-      'service_categories': service_categories,
       'service': service_db,
       'service_day': list(service_db.values()),
       'service_name': list(service_db),

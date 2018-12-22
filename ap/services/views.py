@@ -307,7 +307,6 @@ def changeWeek(request):
     ct = Term.current_term()
     current_week = ct.term_week_of_date(date.today())
     cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
-  week_start, week_end = cws.week_range
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
     Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
@@ -320,19 +319,13 @@ def changeWeek(request):
         if a.service.category.name == "Designated Services":
           designated_list.append(a.service)
         else:
-          service_db.setdefault(a.service, a.service.weekday)
+          # service_db.setdefault(a.service.name, []).append((a.service.weekday, a.service_slot.name))
+          service_db.setdefault(a.service.name, a.service.weekday)
 
-  data = {
-      'service': service_db,
-      'service_day': list(service_db.values()),
-      'service_name': list(service_db),
-      'designated_list': designated_list,
-  }
-
-  # print trainee, type(service_db), service_db, designated_list
-  print list(service_db.values()), list(service_db)
+  service_data = json.dumps(service_db)
+  print service_data
   
-  return HttpResponse(data, content_type='application/json')
+  return HttpResponse(service_data, content_type='application/json')
 
 
 # API Views

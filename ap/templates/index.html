@@ -22,21 +22,49 @@
     var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
     var designatedHoursUrl = "{% url 'services:designated_service_hours' %}";
     var serviceUrl = "{% url 'services:changeWeek' %}";
-    var serviceNames = "{{service_name}}";
+    var assignedServices = "{{service_name}}";
+    var assignedDesignated = "{{designated_list}}";
     var serviceDays = "{{service_day}}";
-    var designated = "{{designated_list}}";
-  
-    // regex string data for display
-    var regex = /(?<=\:\s)(.*?)(?=\&)/g;
-    var service_list = serviceNames.match(regex);
-    var designated_list = designated.match(regex);
-    regex = /(\d+)/g;
-    var serviceDay_list = serviceDays.match(regex);
-    console.log(service_list, serviceDay_list, serviceDay_list.length);
+
+    function processServices(services, days){
+
+      var regex = /(?<=\:\s)(.*?)(?=\&)/g;
+      var designated_list = assignedDesignated.match(regex);
+
+      // for service week row
+      console.log(services, days, days.length);
+
+      var numCols = $("#front-table").find('tr')[0].cells.length;      
+      var row = document.getElementById("service-row");
+      var cell;
+      var urlInsert = "<a href=\"{% url 'services:designated_service_hours' %}\">Hours</a>";
+      var htmlInitInsert = "<span id=\"service-tooltip\" data-toggle=\"tooltip\" title=\"";
+      var htmlLastInsert = "\" class=\"glyphicon glyphicon-ok\"></span>";
+      var colIndex = 0;
+      var colCount = 1;
+      var serviceIndex;
+
+      if (colCount < 8){
+        while(colCount < 8){
+          cell = row.insertCell(colCount);
+          
+          for (serviceIndex=0, len = days.length; serviceIndex<len; serviceIndex++) {
+            if (colIndex == days[serviceIndex]){
+              cell.innerHTML = htmlInitInsert + services[serviceIndex] + htmlLastInsert;
+            }
+          }
+          colIndex++;
+          colCount++;
+        }
+      }
+      
+      // redirect to designated hours if the trainee has designated service
+      cell = row.insertCell(colCount++);
+      (designated_list !== null) ? cell.innerHTML = urlInsert : cell.innerHTML = "";
+    }
 
     function changeServiceWeek(){
       var weekId = $("#week-select").val();
-      console.log(weekId, worker, serviceUrl);
 
       $.ajax({
           type: "GET",
@@ -46,15 +74,32 @@
               "week": weekId,
           },
           success: function(data){
-            var obj = JSON.parse(data);
-            console.log(obj);
+            console.log(data);
+            var services = new Array();
+            var services_day = new Array();
+
+            for (var key in data) {
+              services.push(key);
+              services_day.push(data[key]);
+            }
+            processServices(services, services_day);
+          },
+          error: function (jqXHR, textStatus, errorThrown) { 
+            console.log(jqXHR, textStatus, errorThrown); 
           }
       });
     }
 
     $(document).ready(function () {
       $("#week-select option[value='{{current_week}}']").attr("selected", "selected");
-  
+
+      // regex string data for display
+      var regex = /(?<=\:\s)(.*?)(?=\&)/g;
+      var service_list = assignedServices.match(regex);
+      regex = /(\d+)/g;
+      var serviceDay_list = serviceDays.match(regex);
+      
+      processServices(service_list, serviceDay_list);
       changetoFinalize();
       getWeeklyStatus();
   
@@ -72,37 +117,7 @@
       });
   
       $(".bible-selector").on('change', changetoFinalize);
-  
-      // for service week row
-      var numCols = $("#front-table").find('tr')[0].cells.length;      
-      var row = document.getElementById("service-row");
-      var cell;
-      var urlInsert = "<a href=\"{% url 'services:designated_service_hours' %}\">Hours</a>";
-      var htmlInitInsert = "<span id=\"service-tooltip\" data-toggle=\"tooltip\" title=\"";
-      var htmlLastInsert = "\" class=\"glyphicon glyphicon-ok\"></span>";
-      var colIndex = 0;
-      var colCount = 1;
-      var serviceIndex;
 
-      if (colCount < 8){
-        while(colCount < 8){
-          cell = row.insertCell(colCount);
-          
-          for (serviceIndex=0, len = serviceDay_list.length; serviceIndex<len; serviceIndex++) {
-            if (colIndex == serviceDay_list[serviceIndex]){
-              cell.innerHTML = htmlInitInsert + service_list[serviceIndex] + htmlLastInsert;
-            }
-          }
-          colIndex++;
-          colCount++;
-        }
-      }
-      
-      // redirect to designated hours if the trainee has designated service
-      cell = row.insertCell(colCount++);
-      (designated_list !== null) ? cell.innerHTML = urlInsert : cell.innerHTML = "";
-
-      // $(document).tooltip();
     });
   </script>
   {% endif %}
